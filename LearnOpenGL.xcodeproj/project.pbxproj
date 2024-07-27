@@ -8,6 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		8E2AF8AD2C54FE1D005A28C1 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E2AF8AC2C54FE1D005A28C1 /* main.cpp */; };
+		8E2AF8B62C552666005A28C1 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E2AF8B52C552666005A28C1 /* CoreFoundation.framework */; };
+		8E2AF8B82C552675005A28C1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E2AF8B72C552675005A28C1 /* AppKit.framework */; };
+		8E2AF8BA2C552681005A28C1 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E2AF8B92C552681005A28C1 /* IOKit.framework */; };
+		8E2AF8C02C55297B005A28C1 /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 8E2AF8BF2C55297B005A28C1 /* glad.c */; };
+		8E2AF8C12C552A2A005A28C1 /* libglfw3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E2AF8BD2C5526AD005A28C1 /* libglfw3.a */; };
+		8E2AF8C22C552A32005A28C1 /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E2AF8BC2C5526AD005A28C1 /* libglfw.3.dylib */; };
+		8E2AF8C32C552A32005A28C1 /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 8E2AF8BC2C5526AD005A28C1 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,11 +27,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		8E2AF8C42C552A32005A28C1 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				8E2AF8C32C552A32005A28C1 /* libglfw.3.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8E2AF8A92C54FE1D005A28C1 /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E2AF8AC2C54FE1D005A28C1 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		8E2AF8B52C552666005A28C1 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		8E2AF8B72C552675005A28C1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		8E2AF8B92C552681005A28C1 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		8E2AF8BC2C5526AD005A28C1 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "lib/lib-arm64/libglfw.3.dylib"; sourceTree = "<group>"; };
+		8E2AF8BD2C5526AD005A28C1 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libglfw3.a; path = "lib/lib-arm64/libglfw3.a"; sourceTree = "<group>"; };
+		8E2AF8BE2C55277F005A28C1 /* LearnOpenGL */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LearnOpenGL; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E2AF8BF2C55297B005A28C1 /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glad.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +56,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8E2AF8B62C552666005A28C1 /* CoreFoundation.framework in Frameworks */,
+				8E2AF8B82C552675005A28C1 /* AppKit.framework in Frameworks */,
+				8E2AF8BA2C552681005A28C1 /* IOKit.framework in Frameworks */,
+				8E2AF8C22C552A32005A28C1 /* libglfw.3.dylib in Frameworks */,
+				8E2AF8C12C552A2A005A28C1 /* libglfw3.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,24 +71,30 @@
 			isa = PBXGroup;
 			children = (
 				8E2AF8AB2C54FE1D005A28C1 /* LearnOpenGL */,
-				8E2AF8AA2C54FE1D005A28C1 /* Products */,
+				8E2AF8B42C552666005A28C1 /* Frameworks */,
+				8E2AF8BE2C55277F005A28C1 /* LearnOpenGL */,
 			);
-			sourceTree = "<group>";
-		};
-		8E2AF8AA2C54FE1D005A28C1 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				8E2AF8A92C54FE1D005A28C1 /* LearnOpenGL */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		8E2AF8AB2C54FE1D005A28C1 /* LearnOpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				8E2AF8BF2C55297B005A28C1 /* glad.c */,
 				8E2AF8AC2C54FE1D005A28C1 /* main.cpp */,
 			);
 			path = LearnOpenGL;
+			sourceTree = "<group>";
+		};
+		8E2AF8B42C552666005A28C1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8E2AF8BC2C5526AD005A28C1 /* libglfw.3.dylib */,
+				8E2AF8BD2C5526AD005A28C1 /* libglfw3.a */,
+				8E2AF8B92C552681005A28C1 /* IOKit.framework */,
+				8E2AF8B72C552675005A28C1 /* AppKit.framework */,
+				8E2AF8B52C552666005A28C1 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -72,6 +107,7 @@
 				8E2AF8A52C54FE1D005A28C1 /* Sources */,
 				8E2AF8A62C54FE1D005A28C1 /* Frameworks */,
 				8E2AF8A72C54FE1D005A28C1 /* CopyFiles */,
+				8E2AF8C42C552A32005A28C1 /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -79,7 +115,7 @@
 			);
 			name = LearnOpenGL;
 			productName = LearnOpenGL;
-			productReference = 8E2AF8A92C54FE1D005A28C1 /* LearnOpenGL */;
+			productReference = 8E2AF8BE2C55277F005A28C1 /* LearnOpenGL */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -105,7 +141,7 @@
 				Base,
 			);
 			mainGroup = 8E2AF8A02C54FE1D005A28C1;
-			productRefGroup = 8E2AF8AA2C54FE1D005A28C1 /* Products */;
+			productRefGroup = 8E2AF8A02C54FE1D005A28C1;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -120,6 +156,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8E2AF8AD2C54FE1D005A28C1 /* main.cpp in Sources */,
+				8E2AF8C02C55297B005A28C1 /* glad.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,6 +276,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/lib/lib-arm64";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/lib/include/";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/lib/lib-arm64",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -247,6 +290,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/lib/lib-arm64";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/lib/include/";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/lib/lib-arm64",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
