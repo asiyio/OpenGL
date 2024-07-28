@@ -52,6 +52,7 @@
 		8E939CAA2C554BDC003FCC3C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		8E939CB02C554ED0003FCC3C /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glad.c; sourceTree = "<group>"; };
 		8E939CB62C5630A9003FCC3C /* shader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shader.h; sourceTree = "<group>"; };
+		8E939CB92C5641D6003FCC3C /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				8E939CB62C5630A9003FCC3C /* shader.h */,
+				8E939CB92C5641D6003FCC3C /* config.h */,
 			);
 			name = Header;
 			sourceTree = "<group>";
