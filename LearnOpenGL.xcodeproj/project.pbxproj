@@ -16,17 +16,21 @@
 		8E939CA62C554A7A003FCC3C /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E939CA52C554A7A003FCC3C /* Cocoa.framework */; };
 		8E939CAB2C554BDC003FCC3C /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E939CAA2C554BDC003FCC3C /* OpenGL.framework */; };
 		8E939CB12C554ED0003FCC3C /* glad.c in Sources */ = {isa = PBXBuildFile; fileRef = 8E939CB02C554ED0003FCC3C /* glad.c */; };
+		8EB2D8532C5F6887003B601F /* vertex_shader.vert in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8EB2D8502C5F64A5003B601F /* vertex_shader.vert */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		8EB2D8542C5F688B003B601F /* fragment_shader.frag in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8EB2D84F2C5F6483003B601F /* fragment_shader.frag */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		8E2AF8A72C54FE1D005A28C1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = Resources;
+			dstSubfolderSpec = 7;
 			files = (
+				8EB2D8542C5F688B003B601F /* fragment_shader.frag in CopyFiles */,
+				8EB2D8532C5F6887003B601F /* vertex_shader.vert in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8E2AF8C42C552A32005A28C1 /* Embed Libraries */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -51,8 +55,10 @@
 		8E939CA52C554A7A003FCC3C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		8E939CAA2C554BDC003FCC3C /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		8E939CB02C554ED0003FCC3C /* glad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = glad.c; sourceTree = "<group>"; };
-		8E939CB62C5630A9003FCC3C /* shader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shader.h; sourceTree = "<group>"; };
 		8E939CB92C5641D6003FCC3C /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		8EB2D84F2C5F6483003B601F /* fragment_shader.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = fragment_shader.frag; sourceTree = "<group>"; };
+		8EB2D8502C5F64A5003B601F /* vertex_shader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = vertex_shader.vert; sourceTree = "<group>"; };
+		8EB2D8522C5F663B003B601F /* shader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = shader.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +90,7 @@
 		8E2AF8AB2C54FE1D005A28C1 /* LearnOpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				8EB2D84D2C5F640B003B601F /* Resources */,
 				8E939CB42C562812003FCC3C /* Header */,
 				8E939CB52C56281A003FCC3C /* Sources */,
 			);
@@ -106,8 +113,8 @@
 		8E939CB42C562812003FCC3C /* Header */ = {
 			isa = PBXGroup;
 			children = (
-				8E939CB62C5630A9003FCC3C /* shader.h */,
 				8E939CB92C5641D6003FCC3C /* config.h */,
+				8EB2D8522C5F663B003B601F /* shader.hpp */,
 			);
 			name = Header;
 			sourceTree = "<group>";
@@ -119,6 +126,15 @@
 				8E2AF8AC2C54FE1D005A28C1 /* main.cpp */,
 			);
 			name = Sources;
+			sourceTree = "<group>";
+		};
+		8EB2D84D2C5F640B003B601F /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				8EB2D8502C5F64A5003B601F /* vertex_shader.vert */,
+				8EB2D84F2C5F6483003B601F /* fragment_shader.frag */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

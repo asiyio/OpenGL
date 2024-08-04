@@ -11,7 +11,7 @@
 #include <string>
 #include <cassert>
 
-#include "shader.h"
+#include "shader.hpp"
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -136,7 +136,7 @@ int main()
     
     glBindVertexArray(0);
     
-    unsigned int program = createShader(vertexShader, fragmentShader);
+    unsigned int program = createShader(Shader::load_shader("Resources/vertex_shader.vert"), Shader::load_shader("Resources/fragment_shader.frag"));
     unsigned int timeLocation = glGetUniformLocation(program, "time");
     // render loop
     // -----------
