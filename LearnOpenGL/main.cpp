@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
 
 #include "shader.h"
 
@@ -19,6 +20,20 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+
+static void GLClearError()
+{
+    while (GL_NO_ERROR != glGetError());
+}
+
+static bool GLCheckError()
+{
+    while (GLenum error = glGetError()) {
+        std::cout << "[OpenGL Error] " << error << std::endl;
+        return false;
+    }
+    return true;
+}
 
 /// create shader and compile
 /// - Parameters:
@@ -66,9 +81,9 @@ static unsigned int createShader(const std::string& strVertexShader, const std::
 }
 
 float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+     0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
 };
 
 int main()
@@ -113,10 +128,16 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    glBindVertexArray(0);
+    
     unsigned int program = createShader(vertexShader, fragmentShader);
+    unsigned int timeLocation = glGetUniformLocation(program, "time");
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -130,9 +151,15 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        float time = glfwGetTime();
+        glUniform1f(timeLocation, time);
+        
+        GLClearError();
+        
         glUseProgram(program);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        assert(GLCheckError());
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);

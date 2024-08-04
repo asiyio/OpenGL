@@ -307,6 +307,11 @@
 					"$(PROJECT_DIR)/lib/lib-arm64",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wno-documentation-deprecated-sync",
+					"-Wno-documentation",
+				);
+				WARNING_LDFLAGS = "";
 			};
 			name = Debug;
 		};
@@ -321,6 +326,11 @@
 					"$(PROJECT_DIR)/lib/lib-arm64",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				WARNING_CFLAGS = (
+					"-Wno-documentation-deprecated-sync",
+					"-Wno-documentation",
+				);
+				WARNING_LDFLAGS = "";
 			};
 			name = Release;
 		};
