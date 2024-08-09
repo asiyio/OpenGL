@@ -5,11 +5,13 @@
 //  Created by asi on 2024/8/4.
 //
 
-#include "program.h"
 #include <fstream>
 #include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "program.h"
+#include "ResourcePath.h"
 
 
 Program::Program()
@@ -74,7 +76,7 @@ unsigned int Program::get_location(const std::string& param)
 
 std::string Program::load_shader(const std::string &file_name)
 {
-    std::string path = "Resources/" + file_name;
+    std::string path = ResourcePathWithFile(file_name);
     std::ifstream file(path);
 
     if (!file) {

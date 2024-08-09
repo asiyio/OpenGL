@@ -4,6 +4,9 @@
 //
 //  Created by Rocky on 2024/7/27.
 //
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -12,9 +15,10 @@
 #include <cassert>
 
 #include "program.h"
+#include "ResourcePath.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb/stb_image.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -117,7 +121,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     int nWidth, nHeight, nNrchannel;
-    unsigned char* pData = stbi_load("Resources/container.jpg", &nWidth, &nHeight, &nNrchannel, 0);
+    unsigned char* pData = stbi_load(ResourcePathWithFile("container.jpg").data(), &nWidth, &nHeight, &nNrchannel, 0);
     if (pData) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -136,7 +140,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    pData = stbi_load("Resources/awesomeface.png", &nWidth, &nHeight, &nNrchannel, 0);
+    pData = stbi_load(ResourcePathWithFile("awesomeface.png").data(), &nWidth, &nHeight, &nNrchannel, 0);
     if (pData) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -157,10 +161,23 @@ int main()
     unsigned int timeLocation = program.get_location("time");
     unsigned int textureLocation1 = program.get_location("texture1");
     unsigned int textureLocation2 = program.get_location("texture2");
+    
+#pragma mark Init imgui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF(ResourcePathWithFile("OpenSans-Regular.ttf").data(), 16.0f);
+
+    
+    ImGui::StyleColorsLight();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+#pragma mark Begin render
         // input
         // -----
         processInput(window);
@@ -169,6 +186,15 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+        
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // create imgui window
+        ImGui::Begin("Debug");
+        ImGui::Text("This is some PIP");
+        ImGui::End();
 
         float time = glfwGetTime();
         glUniform1f(timeLocation, time);
@@ -187,12 +213,18 @@ int main()
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         assert(GLCheckError());
+        
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
