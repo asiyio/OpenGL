@@ -33,6 +33,7 @@ public:
     void move(MOVE_DIRECTION dir);
     void rotate(glm::vec3 forward);
     glm::mat4 get_view();
+    glm::vec3 get_position();
     
 private:
     float m_speed;

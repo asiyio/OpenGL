@@ -89,6 +89,15 @@ void Program::set_uniform1i(const std::string& key, int value)
     }
 }
 
+void Program::set_uniform1f(const std::string& key, float value)
+{
+    GLuint location = get_location(key);
+    if (location >= 0)
+    {
+        glUniform1f(location, value);
+    }
+}
+
 void Program::set_uniform3f(const std::string& key, const glm::vec3& value)
 {
     GLuint location = get_location(key);

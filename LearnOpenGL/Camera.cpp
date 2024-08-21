@@ -72,3 +72,8 @@ glm::mat4 Camera::get_view()
 {
     return m_view;
 }
+
+glm::vec3 Camera::get_position()
+{
+    return m_position;
+}

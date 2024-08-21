@@ -27,6 +27,8 @@
 		8E157BCD2C663C11000042E9 /* cube_fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = 8E157B9E2C66347C000042E9 /* cube_fragment.fs */; };
 		8E157BCE2C663C11000042E9 /* cube_vertex.vs in Resources */ = {isa = PBXBuildFile; fileRef = 8E157B9F2C66347C000042E9 /* cube_vertex.vs */; };
 		8E157BD02C663C11000042E9 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E157BA12C66347C000042E9 /* OpenSans-Regular.ttf */; };
+		8E9A01E02C76485500894FBE /* container2_specular.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E9A01DE2C76485500894FBE /* container2_specular.png */; };
+		8E9A01E12C76485500894FBE /* container2.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E9A01DF2C76485500894FBE /* container2.png */; };
 		8EA9CF962C679E0F0010ACFB /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA9CF942C679E0F0010ACFB /* Camera.cpp */; };
 		8EB2472A2C6642D90044BDE9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8EB247292C6642D90044BDE9 /* Assets.xcassets */; };
 		8EF389E82C665A1000A4B5DA /* awesomeface.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EF389E72C665A1000A4B5DA /* awesomeface.png */; };
@@ -82,6 +84,10 @@
 		8E157BC02C663806000042E9 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		8E157BC22C663828000042E9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		8E157BC42C66385D000042E9 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "lib/lib-arm64/libglfw.3.dylib"; sourceTree = "<group>"; };
+		8E1620832C763E5B008E092E /* Material.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Material.hpp; sourceTree = "<group>"; };
+		8E9A01DD2C7643B900894FBE /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Light.hpp; sourceTree = "<group>"; };
+		8E9A01DE2C76485500894FBE /* container2_specular.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = container2_specular.png; sourceTree = "<group>"; };
+		8E9A01DF2C76485500894FBE /* container2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = container2.png; sourceTree = "<group>"; };
 		8EA9CF942C679E0F0010ACFB /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		8EA9CF952C679E0F0010ACFB /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		8EB247292C6642D90044BDE9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = LearnOpenGL/Assets.xcassets; sourceTree = SOURCE_ROOT; };
@@ -154,6 +160,8 @@
 			children = (
 				8EA9CF952C679E0F0010ACFB /* Camera.h */,
 				8E157B9A2C663437000042E9 /* config.h */,
+				8E9A01DD2C7643B900894FBE /* Light.hpp */,
+				8E1620832C763E5B008E092E /* Material.hpp */,
 				8E157B9B2C663437000042E9 /* program.h */,
 				8EF389EA2C66665F00A4B5DA /* System.h */,
 			);
@@ -175,6 +183,8 @@
 		8E157B9C2C66347C000042E9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8E9A01DE2C76485500894FBE /* container2_specular.png */,
+				8E9A01DF2C76485500894FBE /* container2.png */,
 				8EB247292C6642D90044BDE9 /* Assets.xcassets */,
 				8EF389E72C665A1000A4B5DA /* awesomeface.png */,
 				8E157B9D2C66347C000042E9 /* container.jpg */,
@@ -284,8 +294,10 @@
 				8EF42CA92C72290300BE5734 /* light_fragment.fs in Resources */,
 				8EB2472A2C6642D90044BDE9 /* Assets.xcassets in Resources */,
 				8EF42CA72C7228D000BE5734 /* light_vertex.vs in Resources */,
+				8E9A01E12C76485500894FBE /* container2.png in Resources */,
 				8E157BD02C663C11000042E9 /* OpenSans-Regular.ttf in Resources */,
 				8EF389E82C665A1000A4B5DA /* awesomeface.png in Resources */,
+				8E9A01E02C76485500894FBE /* container2_specular.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

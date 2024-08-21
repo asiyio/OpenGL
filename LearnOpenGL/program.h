@@ -34,7 +34,9 @@ public:
     /// use this program
     void use();
     
+    /// set shader uniform value
     void set_uniform1i(const std::string& key, int value);
+    void set_uniform1f(const std::string& key, float value);
     void set_uniform3f(const std::string& key, const glm::vec3& value);
     void set_uniform3f(const std::string& key, float x, float y, float z);
     void set_uniformMatrix4fv(const std::string& key, const glm::mat4& value);

@@ -19,6 +19,8 @@
 #include "program.h"
 #include "System.h"
 #include "Camera.h"
+#include "Material.hpp"
+#include "Light.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -257,9 +259,9 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     int nWidth, nHeight, nNrchannel;
-    unsigned char* pData = stbi_load(System::ResourcePathWithFile("container.jpg").data(), &nWidth, &nHeight, &nNrchannel, 0);
+    unsigned char* pData = stbi_load(System::ResourcePathWithFile("container2.png").data(), &nWidth, &nHeight, &nNrchannel, 0);
     if (pData) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nWidth, nHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else{
@@ -276,7 +278,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    pData = stbi_load(System::ResourcePathWithFile("awesomeface.png").data(), &nWidth, &nHeight, &nNrchannel, 0);
+    pData = stbi_load(System::ResourcePathWithFile("container2_specular.png").data(), &nWidth, &nHeight, &nNrchannel, 0);
     if (pData) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -288,8 +290,9 @@ int main()
     
     glBindVertexArray(0);
     
-    Program program("cube_vertex.vs", "cube_fragment.fs");
-    Program light("light_vertex.vs", "light_fragment.fs");
+    Material material(texture1, texture2, 32.0f);
+    Program cubeShader("cube_vertex.vs", "cube_fragment.fs");
+    Program lightShader("light_vertex.vs", "light_fragment.fs");
     
 #pragma mark init imgui
     IMGUI_CHECKVERSION();
@@ -309,7 +312,8 @@ int main()
     
 #pragma mark init camera
     Camera::main_camera.init(glm::vec3(0.f, 0.f, 10.3f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-
+    
+    Light light(glm::vec3(.1f, .1f, .1f), glm::vec3(.5f, .5f, .5f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.2f, 1.0f, -3.0f));
     
 #pragma mark render loop
     while (!glfwWindowShouldClose(window))
@@ -326,49 +330,52 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         GLClearError();
-        glm::vec3 lightPos(1.2f, 1.0f, -3.0f);
-        glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
-        glm::vec3 objectColor(0.f, 1.f, 0.f);
-        
+
         {
-            // draw wood cube
-            program.use();
-            program.set_uniform1i("texture1", 0);
-            program.set_uniform1i("texture2", 1);
-            program.set_uniform3f("lightPos", lightPos);
-            program.set_uniform3f("lightColor", lightColor);
-            program.set_uniform3f("objectColor", objectColor);
-            program.set_uniformMatrix4fv("project", project);
-            program.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
-            
+            // bind texture
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture1);
+            glBindTexture(GL_TEXTURE_2D, material.diffuse);
             
             glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, texture2);
+            glBindTexture(GL_TEXTURE_2D, material.specular);
             
+            // draw wood cube
+            cubeShader.use();
+            cubeShader.set_uniform3f("viewPos", Camera::main_camera.get_position());
+            cubeShader.set_uniformMatrix4fv("project", project);
+            cubeShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+            
+            cubeShader.set_uniform1i("material.diffuse", 0);
+            cubeShader.set_uniform1i("material.specular", 1);
+            cubeShader.set_uniform1f("material.shininess", material.shininess);
+            
+            cubeShader.set_uniform3f("light.ambient", light.ambient);
+            cubeShader.set_uniform3f("light.diffuse", light.diffuse);
+            cubeShader.set_uniform3f("light.specular", light.specular);
+            cubeShader.set_uniform3f("light.position", light.position);
+
             glBindVertexArray(VAO);
             for(unsigned int i = 0; i < 10; i++)
             {
                 glm::mat4 model;
                 model = glm::translate(model, cubePositions[i]);
                 model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.f, 1.f, 1.f));
-                program.set_uniformMatrix4fv("model", model);
+                cubeShader.set_uniformMatrix4fv("model", model);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
         }
         
         {
             // draw light and light cube
-            light.use();
+            lightShader.use();
             glm::mat4 model;
-            model = glm::translate(model, lightPos);
+            model = glm::translate(model, light.position);
             model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
             
-            light.set_uniform3f("lightColor", lightColor);
-            light.set_uniformMatrix4fv("model", model);
-            light.set_uniformMatrix4fv("project", project);
-            light.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+            lightShader.set_uniform3f("lightColor", light.specular);
+            lightShader.set_uniformMatrix4fv("model", model);
+            lightShader.set_uniformMatrix4fv("project", project);
+            lightShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         assert(GLCheckError());

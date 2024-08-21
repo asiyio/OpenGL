@@ -11,7 +11,6 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 project;
 
-//out vec3 color;
 out vec3 fragPos;
 out vec3 normal;
 out vec2 textCoord;
