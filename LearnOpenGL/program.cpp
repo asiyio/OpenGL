@@ -9,15 +9,24 @@
 #include <sstream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "program.h"
-#include "ResourcePath.h"
+#include "System.h"
 
 
 Program::Program()
     : m_program(0)
 {
 
+}
+
+Program::Program(const std::string& vertex_shader, const std::string& fragment_shader)
+    : m_program(0)
+{
+    init();
+    set_vertex_shader(vertex_shader);
+    set_fragment_shader(fragment_shader);
 }
 
 Program::~Program()
@@ -40,7 +49,8 @@ void Program::set_vertex_shader(const std::string& shader)
     
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
-    if (linkStatus != GL_TRUE) {
+    if (linkStatus != GL_TRUE)
+    {
         GLchar infoLog[512];
         glGetProgramInfoLog(m_program, sizeof(infoLog), nullptr, infoLog);
         std::cerr << "Program linking failed:\n" << infoLog << std::endl;
@@ -57,7 +67,8 @@ void Program::set_fragment_shader(const std::string& shader)
     
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
-    if (linkStatus != GL_TRUE) {
+    if (linkStatus != GL_TRUE)
+    {
         GLchar infoLog[512];
         glGetProgramInfoLog(m_program, sizeof(infoLog), nullptr, infoLog);
         std::cerr << "Program linking failed:\n" << infoLog << std::endl;
@@ -69,17 +80,76 @@ void Program::use()
     glUseProgram(m_program);
 }
 
-unsigned int Program::get_location(const std::string& param)
+void Program::set_uniform1i(const std::string& key, int value)
 {
-    return glGetUniformLocation(m_program, param.c_str());
+    GLuint location = get_location(key);
+    if (location >= 0)
+    {
+        glUniform1i(location, value);
+    }
+}
+
+void Program::set_uniform1f(const std::string& key, float value)
+{
+    GLuint location = get_location(key);
+    if (location >= 0)
+    {
+        glUniform1f(location, value);
+    }
+}
+
+void Program::set_uniform3f(const std::string& key, const glm::vec3& value)
+{
+    GLuint location = get_location(key);
+    if (location >= 0)
+    {
+        glUniform3f(location, value.x, value.y, value.z);
+    }
+}
+
+void Program::set_uniform3f(const std::string& key, float x, float y, float z)
+{
+    GLuint location = get_location(key);
+    if (location >= 0)
+    {
+        glUniform3f(location, x, y, z);
+    }
+}
+
+void Program::set_uniformMatrix4fv(const std::string& key, const glm::mat4& value)
+{
+    GLuint location = get_location(key);
+    if (location >= 0)
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    }
+}
+
+GLuint Program::get_location(const std::string& param)
+{
+    GLuint location = -1;
+    if (m_mapUniformLoc.find(param) != m_mapUniformLoc.end())
+    {
+        location = m_mapUniformLoc.at(param);
+    }
+    else
+    {
+        location = glGetUniformLocation(m_program, param.c_str());
+        if (location >= 0)
+        {
+            m_mapUniformLoc[param] = location;
+        }
+    }
+    return location;
 }
 
 std::string Program::load_shader(const std::string &file_name)
 {
-    std::string path = ResourcePathWithFile(file_name);
+    std::string path = System::ResourcePathWithFile(file_name);
     std::ifstream file(path);
 
-    if (!file) {
+    if (!file)
+    {
         std::cerr << "Failed to open " << file_name << "!" << std::endl;
         return "";
     }

@@ -10,11 +10,14 @@
 
 #include <iostream>
 #include <string>
+#include <map>
+#include <glm/glm.hpp>
 
 class Program
 {
 public:
     Program();
+    Program(const std::string& vertex_shader, const std::string& fragment_shader);
     ~Program();
     
     /// initial program
@@ -31,9 +34,16 @@ public:
     /// use this program
     void use();
     
-    unsigned int get_location(const std::string& param);
+    /// set shader uniform value
+    void set_uniform1i(const std::string& key, int value);
+    void set_uniform1f(const std::string& key, float value);
+    void set_uniform3f(const std::string& key, const glm::vec3& value);
+    void set_uniform3f(const std::string& key, float x, float y, float z);
+    void set_uniformMatrix4fv(const std::string& key, const glm::mat4& value);
     
 private:
+    
+    GLuint get_location(const std::string& param);
     
     std::string load_shader(const std::string& file_name);
     
@@ -45,6 +55,8 @@ private:
     
 private:
     unsigned int m_program;
+    
+    std::map<std::string, unsigned int> m_mapUniformLoc;
 };
 
 #endif /* program_h */
