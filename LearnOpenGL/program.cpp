@@ -7,6 +7,8 @@
 
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <string>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -122,6 +124,65 @@ void Program::set_uniformMatrix4fv(const std::string& key, const glm::mat4& valu
     if (location >= 0)
     {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+    }
+}
+
+void Program::set_uniformSpotLights(const std::vector<SpotLight*>& spotLights)
+{
+    std::string key = "";
+    set_uniform1i("num_spot_lights", (int)spotLights.size());
+    for (int i = 0; i < spotLights.size(); i++) {
+        key = "spot_lights[" + std::to_string(i) + "].position";
+        set_uniform3f(key, spotLights[i]->position);
+        
+        key = "spot_lights[" + std::to_string(i) + "].color";
+        set_uniform3f(key, spotLights[i]->color);
+        
+        key = "spot_lights[" + std::to_string(i) + "].constant";
+        set_uniform1f(key, spotLights[i]->constant);
+        
+        key = "spot_lights[" + std::to_string(i) + "].linear";
+        set_uniform1f(key, spotLights[i]->linear);
+        
+        key = "spot_lights[" + std::to_string(i) + "].quadratic";
+        set_uniform1f(key, spotLights[i]->quadratic);
+        
+        key = "spot_lights[" + std::to_string(i) + "].on";
+        set_uniform1i(key, spotLights[i]->on);
+    }
+}
+
+void Program::set_uniformFlashLight(const std::vector<FlashLight*>& flashLights)
+{
+    std::string key = "";
+    set_uniform1i("num_flash_lights", (int)flashLights.size());
+    for (int i = 0; i < flashLights.size(); i++) {
+        key = "flash_lights[" + std::to_string(i) + "].position";
+        set_uniform3f(key, flashLights[i]->position);
+        
+        key = "flash_lights[" + std::to_string(i) + "].direction";
+        set_uniform3f(key, flashLights[i]->direction);
+        
+        key = "flash_lights[" + std::to_string(i) + "].color";
+        set_uniform3f(key, flashLights[i]->color);
+        
+        key = "flash_lights[" + std::to_string(i) + "].cutOff";
+        set_uniform1f(key, flashLights[i]->cutOff);
+        
+        key = "flash_lights[" + std::to_string(i) + "].outerCutOff";
+        set_uniform1f(key, flashLights[i]->outerCutOff);
+        
+        key = "flash_lights[" + std::to_string(i) + "].constant";
+        set_uniform1f(key, flashLights[i]->constant);
+        
+        key = "flash_lights[" + std::to_string(i) + "].linear";
+        set_uniform1f(key, flashLights[i]->linear);
+        
+        key = "flash_lights[" + std::to_string(i) + "].quadratic";
+        set_uniform1f(key, flashLights[i]->quadratic);
+        
+        key = "flash_lights[" + std::to_string(i) + "].on";
+        set_uniform1i(key, flashLights[i]->on);
     }
 }
 

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <vector>
+#include <cmath>
 
 #include "config.h"
 #include "program.h"
@@ -52,6 +54,8 @@ void mouse_callback(GLFWwindow* pWindow, double xpos, double ypos)
     
     // prohibit using mouse in debugging mode
     if (!g_bDebug) {
+        g_mousePos = glm::vec2(xpos, ypos);
+        
         static bool firstMouse = true;
         static float lastX     = 0.f;
         static float lastY     = 0.f;
@@ -68,20 +72,13 @@ void mouse_callback(GLFWwindow* pWindow, double xpos, double ypos)
         float yoffset = lastY - ypos;
         lastX = xpos;
         lastY = ypos;
-        
 
         float sensitivity = 0.02f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
-
         yaw   += xoffset;
         pitch += yoffset;
 
-//        if(pitch > 89.0f)
-//            pitch = 89.0f;
-//        if(pitch < -89.0f)
-//            pitch = -89.0f;
-        
         glm::vec3 front;
         front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
         front.y = sin(glm::radians(pitch));
@@ -100,7 +97,6 @@ void processInput(GLFWwindow* pWindow, Camera* pCamera)
     
     if(glfwGetKey(pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
-        glfwGetCursorPos(pWindow, &g_mousePos.x, &g_mousePos.y);
         g_bDebug = true;
         change_mouse_display(pWindow, g_bDebug);
     }
@@ -202,7 +198,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    unsigned int nScreenWidth = 800, nScreenHeight = 600;
+    unsigned int nScreenWidth = 1200, nScreenHeight = 800;
     System::GetScreenSize(&nScreenWidth, &nScreenHeight);
     GLFWwindow* window = glfwCreateWindow(nScreenWidth, nScreenHeight, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
@@ -213,8 +209,7 @@ int main()
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    change_mouse_display(window, false);
-
+    
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -291,7 +286,7 @@ int main()
     glBindVertexArray(0);
     
     Material material(texture1, texture2, 32.0f);
-    Program cubeShader("cube_vertex.vs", "cube_fragment.fs");
+    Program cubeShader("cube_vertex.vert", "cube_fragment.frag");
     Program lightShader("light_vertex.vs", "light_fragment.fs");
     
 #pragma mark init imgui
@@ -310,11 +305,21 @@ int main()
     style.GrabRounding = 4.0f;
     glm::mat4 project = glm::perspective(glm::radians(45.f), (float)nScreenWidth/(float)nScreenHeight, 0.1f, 50.f);
     
-#pragma mark init camera
+#pragma mark init screen
     Camera::main_camera.init(glm::vec3(0.f, 0.f, 10.3f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     
-    Light light(glm::vec3(.1f, .1f, .1f), glm::vec3(.5f, .5f, .5f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.2f, 1.0f, -3.0f));
+    std::vector<SpotLight*> spotLights;
+    SpotLight* spLight = new SpotLight(glm::vec3(1.2f, 1.0f, -3.0f));
+    spotLights.push_back(spLight);
     
+    std::vector<FlashLight*> flashLights;
+    FlashLight* flLight = new FlashLight(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, -1.f));
+    flashLights.push_back(flLight);
+    
+    glfwPollEvents();
+    //change_mouse_pos(window, glm::dvec2(nScreenWidth / 2.f, nScreenHeight / 2.f));
+    change_mouse_display(window, false);
+    //change_mouse_display(window, false);
 #pragma mark render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -328,6 +333,9 @@ int main()
         // clean buffer
         glClearColor(0.f, 0.f, 0.f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        flLight->position = Camera::main_camera.get_position();
+        flLight->direction = Camera::main_camera.get_forward();
 
         GLClearError();
 
@@ -335,7 +343,6 @@ int main()
             // bind texture
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, material.diffuse);
-            
             glActiveTexture(GL_TEXTURE1);
             glBindTexture(GL_TEXTURE_2D, material.specular);
             
@@ -349,35 +356,35 @@ int main()
             cubeShader.set_uniform1i("material.specular", 1);
             cubeShader.set_uniform1f("material.shininess", material.shininess);
             
-            cubeShader.set_uniform3f("light.ambient", light.ambient);
-            cubeShader.set_uniform3f("light.diffuse", light.diffuse);
-            cubeShader.set_uniform3f("light.specular", light.specular);
-            cubeShader.set_uniform3f("light.position", light.position);
+            cubeShader.set_uniformSpotLights(spotLights);
+            cubeShader.set_uniformFlashLight(flashLights);
 
             glBindVertexArray(VAO);
             for(unsigned int i = 0; i < 10; i++)
             {
                 glm::mat4 model;
                 model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(1.f, 1.f, 1.f));
+                model = glm::rotate(model, float(std::pow(-1, i % 2 )) * (float)glfwGetTime(), glm::vec3(1.f, 1.f, 1.f));
                 cubeShader.set_uniformMatrix4fv("model", model);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
         }
         
+        if (spLight->on)
         {
             // draw light and light cube
             lightShader.use();
             glm::mat4 model;
-            model = glm::translate(model, light.position);
-            model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+            model = glm::translate(model, spLight->position);
+            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
             
-            lightShader.set_uniform3f("lightColor", light.specular);
+            lightShader.set_uniform3f("lightColor", spLight->color);
             lightShader.set_uniformMatrix4fv("model", model);
             lightShader.set_uniformMatrix4fv("project", project);
             lightShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+        
         assert(GLCheckError());
         
         // create imgui window
@@ -386,12 +393,13 @@ int main()
         ImGui::NewFrame();
 
         ImGui::Begin("Debug Window");
-        if (ImGui::Button("continue"))
+        if (ImGui::Button("resume"))
         {
-            change_mouse_pos(window, g_mousePos);
             change_mouse_display(window, false);
+            change_mouse_pos(window, g_mousePos);
             g_bDebug = false;
         }
+        ImGui::Text("pos x:%f y:%f z:%f", flLight->position.x, flLight->position.y, flLight->position.z);
         ImGui::End();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

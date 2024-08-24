@@ -12,6 +12,7 @@
 #include <string>
 #include <map>
 #include <glm/glm.hpp>
+#include "Light.hpp"
 
 class Program
 {
@@ -40,6 +41,8 @@ public:
     void set_uniform3f(const std::string& key, const glm::vec3& value);
     void set_uniform3f(const std::string& key, float x, float y, float z);
     void set_uniformMatrix4fv(const std::string& key, const glm::mat4& value);
+    void set_uniformSpotLights(const std::vector<SpotLight*>& spotLights);
+    void set_uniformFlashLight(const std::vector<FlashLight*>& flashLights);
     
 private:
     

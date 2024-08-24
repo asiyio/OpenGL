@@ -9,28 +9,43 @@
 #define Light_hpp
 #include <glm/glm.hpp>
 
-struct Light
+struct SpotLight
 {
-    Light()
+    SpotLight(glm::vec3 _position, glm::vec3 _color = glm::vec3(.5f, .5f, .5f))
     {
-        ambient = glm::vec3(1.0f, 1.0f, 1.0f);
-        diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-        specular = glm::vec3(1.0f, 1.0f, 1.0f);
-        position = glm::vec3(.0f, .0f, .0f);
-    }
-
-    Light(glm::vec3 _ambient, glm::vec3 _diffuse, glm::vec3 _specular, glm::vec3 _position)
-    {
-        ambient = _ambient;
-        diffuse = _diffuse;
-        specular = _specular;
         position = _position;
+        color = _color;
     }
     
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
+    bool on = true;
+
     glm::vec3 position;
+    glm::vec3 color;
+
+    float constant = 1.0f;
+    float linear = 0.09f;
+    float quadratic = 0.032f;
 };
 
+struct FlashLight
+{
+    FlashLight(glm::vec3 _position, glm::vec3 _direction, glm::vec3 _color = glm::vec3(4.f, 4.f, 4.f))
+    {
+        position = _position;
+        direction = _direction;
+        color = _color;
+    }
+    bool on = true;
+
+    glm::vec3 position;
+    glm::vec3 direction;
+    glm::vec3 color;
+    
+    float cutOff = glm::cos(glm::radians(12.5f));
+    float outerCutOff = glm::cos(glm::radians(17.5f));
+
+    float constant = 1.0f;
+    float linear = 0.09f;
+    float quadratic = 0.032f;
+};
 #endif /* Light_hpp */

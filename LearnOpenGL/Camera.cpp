@@ -77,3 +77,8 @@ glm::vec3 Camera::get_position()
 {
     return m_position;
 }
+
+glm::vec3 Camera::get_forward()
+{
+    return m_forward;
+}

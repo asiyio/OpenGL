@@ -34,6 +34,7 @@ public:
     void rotate(glm::vec3 forward);
     glm::mat4 get_view();
     glm::vec3 get_position();
+    glm::vec3 get_forward();
     
 private:
     float m_speed;
