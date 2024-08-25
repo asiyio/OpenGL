@@ -2,7 +2,7 @@
 //
 // Created by asi on 2024/8/4.
 
-#version 330 core
+#version 410 core
 
 struct Material
 {

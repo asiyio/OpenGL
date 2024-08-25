@@ -164,7 +164,7 @@ void Program::set_uniformFlashLight(const std::vector<FlashLight*>& flashLights)
         set_uniform3f(key, flashLights[i]->direction);
         
         key = "flash_lights[" + std::to_string(i) + "].color";
-        set_uniform3f(key, flashLights[i]->color);
+        set_uniform3f(key, flashLights[i]->color * flashLights[i]->intensity);
         
         key = "flash_lights[" + std::to_string(i) + "].cutOff";
         set_uniform1f(key, flashLights[i]->cutOff);

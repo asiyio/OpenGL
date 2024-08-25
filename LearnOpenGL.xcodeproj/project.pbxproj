@@ -31,6 +31,7 @@
 		8E9A01E12C76485500894FBE /* container2.png in Resources */ = {isa = PBXBuildFile; fileRef = 8E9A01DF2C76485500894FBE /* container2.png */; };
 		8EA9CF962C679E0F0010ACFB /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA9CF942C679E0F0010ACFB /* Camera.cpp */; };
 		8EB2472A2C6642D90044BDE9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8EB247292C6642D90044BDE9 /* Assets.xcassets */; };
+		8EDA8D722C7B2DDC0073AABD /* OpenSans-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8EDA8D702C7B2DDC0073AABD /* OpenSans-SemiBold.ttf */; };
 		8EF389E82C665A1000A4B5DA /* awesomeface.png in Resources */ = {isa = PBXBuildFile; fileRef = 8EF389E72C665A1000A4B5DA /* awesomeface.png */; };
 		8EF389EB2C66665F00A4B5DA /* System.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8EF389E92C66665F00A4B5DA /* System.mm */; };
 		8EF389ED2C66693E00A4B5DA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EF389EC2C66693E00A4B5DA /* Cocoa.framework */; };
@@ -91,6 +92,7 @@
 		8EA9CF942C679E0F0010ACFB /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		8EA9CF952C679E0F0010ACFB /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
 		8EB247292C6642D90044BDE9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = LearnOpenGL/Assets.xcassets; sourceTree = SOURCE_ROOT; };
+		8EDA8D702C7B2DDC0073AABD /* OpenSans-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "OpenSans-SemiBold.ttf"; sourceTree = "<group>"; };
 		8EF389E72C665A1000A4B5DA /* awesomeface.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = awesomeface.png; sourceTree = "<group>"; };
 		8EF389E92C66665F00A4B5DA /* System.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = System.mm; sourceTree = "<group>"; };
 		8EF389EA2C66665F00A4B5DA /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 		8E157B9C2C66347C000042E9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8EDA8D702C7B2DDC0073AABD /* OpenSans-SemiBold.ttf */,
 				8E96AC2D2C7A1F0F00229E7A /* cube_fragment.frag */,
 				8E96AC2E2C7A1F0F00229E7A /* cube_vertex.vert */,
 				8E9A01DE2C76485500894FBE /* container2_specular.png */,
@@ -290,6 +293,7 @@
 			files = (
 				8E157BCC2C663C11000042E9 /* container.jpg in Resources */,
 				8EF42CA92C72290300BE5734 /* light_fragment.fs in Resources */,
+				8EDA8D722C7B2DDC0073AABD /* OpenSans-SemiBold.ttf in Resources */,
 				8EB2472A2C6642D90044BDE9 /* Assets.xcassets in Resources */,
 				8EF42CA72C7228D000BE5734 /* light_vertex.vs in Resources */,
 				8E9A01E12C76485500894FBE /* container2.png in Resources */,

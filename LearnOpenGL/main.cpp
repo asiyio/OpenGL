@@ -27,6 +27,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#define DEFAULTINDENT 5.f
+#define DEFAULTRADIUS 2.f
+
 static bool g_bDebug = false;
 static glm::dvec2 g_mousePos;
 
@@ -59,8 +62,6 @@ void mouse_callback(GLFWwindow* pWindow, double xpos, double ypos)
         static bool firstMouse = true;
         static float lastX     = 0.f;
         static float lastY     = 0.f;
-        static float pitch     = 0;
-        static float yaw       = -90.f;
         
         if (firstMouse) {
             lastX      = xpos;
@@ -76,14 +77,7 @@ void mouse_callback(GLFWwindow* pWindow, double xpos, double ypos)
         float sensitivity = 0.02f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
-        yaw   += xoffset;
-        pitch += yoffset;
-
-        glm::vec3 front;
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(pitch));
-        front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        Camera::main_camera.rotate(front);
+        Camera::main_camera.update_angle(xoffset, yoffset);
     }
 }
 
@@ -113,18 +107,50 @@ void processInput(GLFWwindow* pWindow, Camera* pCamera)
     }
 }
 
-static void GLClearError()
+void GLClearError()
 {
     while (GL_NO_ERROR != glGetError());
 }
 
-static bool GLCheckError()
+bool GLCheckError()
 {
     while (GLenum error = glGetError()) {
         std::cout << "[OpenGL Error] " << error << std::endl;
         return false;
     }
     return true;
+}
+
+void init_imgui(GLFWwindow* window)
+{
+    if (nullptr == window) return;
+#pragma mark init imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    //io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-Regular.ttf").data(), 18.0f);
+    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-SemiBold.ttf").data(), 16.0f);
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+    
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 410");
+    
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec4 defaultColor   = ImVec4(.2f, .2f, .2f, 1.f);
+    style.GrabMinSize     = 12.f;
+    style.GrabRounding    = DEFAULTRADIUS;
+    style.FramePadding    = ImVec2(1.f, 1.f);
+    style.FrameRounding   = DEFAULTRADIUS;
+    style.FrameBorderSize = 1.f;
+    style.ItemSpacing     = ImVec2(3.f, 3.f);
+    style.IndentSpacing   = DEFAULTINDENT;
+    style.Colors[ImGuiCol_Header] = defaultColor;
+    style.Colors[ImGuiCol_HeaderHovered] = defaultColor;
+    style.Colors[ImGuiCol_HeaderActive] = defaultColor;
+    style.Colors[ImGuiCol_FrameBg] = defaultColor;
+    style.Colors[ImGuiCol_FrameBgHovered] = defaultColor;
+    style.Colors[ImGuiCol_FrameBgActive] = defaultColor;
 }
 
 // cube vertex
@@ -191,8 +217,8 @@ int main()
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
@@ -217,6 +243,9 @@ int main()
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    
+    // initial imgui context and set imgui style
+    init_imgui(window);
     
     glEnable(GL_DEPTH_TEST);
     
@@ -289,23 +318,8 @@ int main()
     Program cubeShader("cube_vertex.vert", "cube_fragment.frag");
     Program lightShader("light_vertex.vs", "light_fragment.fs");
     
-#pragma mark init imgui
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-Regular.ttf").data(), 18.0f);
-    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
-    
-    ImGui::StyleColorsClassic();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-    
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.GrabMinSize = 10.f;
-    style.GrabRounding = 4.0f;
-    glm::mat4 project = glm::perspective(glm::radians(45.f), (float)nScreenWidth/(float)nScreenHeight, 0.1f, 50.f);
-    
 #pragma mark init screen
+    glm::mat4 project = glm::perspective(glm::radians(45.f), (float)nScreenWidth/(float)nScreenHeight, 0.1f, 50.f);
     Camera::main_camera.init(glm::vec3(0.f, 0.f, 10.3f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     
     std::vector<SpotLight*> spotLights;
@@ -314,12 +328,11 @@ int main()
     
     std::vector<FlashLight*> flashLights;
     FlashLight* flLight = new FlashLight(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, -1.f));
+    flLight->on = false;
     flashLights.push_back(flLight);
     
     glfwPollEvents();
-    //change_mouse_pos(window, glm::dvec2(nScreenWidth / 2.f, nScreenHeight / 2.f));
     change_mouse_display(window, false);
-    //change_mouse_display(window, false);
 #pragma mark render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -393,13 +406,57 @@ int main()
         ImGui::NewFrame();
 
         ImGui::Begin("Debug Window");
-        if (ImGui::Button("resume"))
+        if (ImGui::Button("continue"))
         {
             change_mouse_display(window, false);
             change_mouse_pos(window, g_mousePos);
             g_bDebug = false;
         }
-        ImGui::Text("pos x:%f y:%f z:%f", flLight->position.x, flLight->position.y, flLight->position.z);
+        
+        if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Indent(DEFAULTINDENT);
+            if (ImGui::CollapsingHeader("flash light"))
+            {
+                ImGui::Checkbox("##enable flash light", &flLight->on);
+                ImGui::SameLine();
+                ImVec4 selectedColor = ImVec4(flLight->color.x, flLight->color.y, flLight->color.z, 1.0f);
+                ImGui::ColorButton("##flash light color", selectedColor);
+                ImGui::PushItemWidth(60.0f);
+                ImGui::SameLine();
+                ImGui::SliderFloat("##flash light r", &flLight->color.x, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine();
+                ImGui::SliderFloat("##flash light g", &flLight->color.y, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine();
+                ImGui::SliderFloat("##flash light b", &flLight->color.z, 0.0f, 1.0f, "%.2f");
+                ImGui::PopItemWidth();
+            }
+            if (ImGui::CollapsingHeader("spot light 1", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("##enable spot light", &spLight->on);
+                ImGui::SameLine();
+                ImVec4 selectedColor = ImVec4(spLight->color.x, spLight->color.y, spLight->color.z, 1.0f);
+                ImGui::ColorButton("##spot light color", selectedColor);
+                ImGui::PushItemWidth(60.0f);
+                ImGui::SameLine();
+                ImGui::SliderFloat("##spot light r", &spLight->color.x, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine();
+                ImGui::SliderFloat("##spot light g", &spLight->color.y, 0.0f, 1.0f, "%.2f");
+                ImGui::SameLine();
+                ImGui::SliderFloat("##spot light b", &spLight->color.z, 0.0f, 1.0f, "%.2f");
+                ImGui::PopItemWidth();
+            }
+            ImGui::Unindent(DEFAULTINDENT);
+        }
+            
+        if (ImGui::CollapsingHeader("output", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Indent(DEFAULTINDENT);
+            ImGui::Text("pos x:%f y:%f z:%f", flLight->position.x, flLight->position.y, flLight->position.z);
+            ImGui::Unindent(DEFAULTINDENT);
+        }
+        
+        
         ImGui::End();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

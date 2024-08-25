@@ -11,7 +11,7 @@
 
 struct SpotLight
 {
-    SpotLight(glm::vec3 _position, glm::vec3 _color = glm::vec3(.5f, .5f, .5f))
+    SpotLight(glm::vec3 _position, glm::vec3 _color = glm::vec3(1.f, 1.f, 1.f))
     {
         position = _position;
         color = _color;
@@ -29,7 +29,7 @@ struct SpotLight
 
 struct FlashLight
 {
-    FlashLight(glm::vec3 _position, glm::vec3 _direction, glm::vec3 _color = glm::vec3(4.f, 4.f, 4.f))
+    FlashLight(glm::vec3 _position, glm::vec3 _direction, glm::vec3 _color = glm::vec3(1.f, 1.f, 1.f))
     {
         position = _position;
         direction = _direction;
@@ -44,7 +44,8 @@ struct FlashLight
     float cutOff = glm::cos(glm::radians(12.5f));
     float outerCutOff = glm::cos(glm::radians(17.5f));
 
-    float constant = 1.0f;
+    float intensity = 4.f;
+    float constant = 1.f;
     float linear = 0.09f;
     float quadratic = 0.032f;
 };
