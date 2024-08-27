@@ -30,8 +30,9 @@
 #define DEFAULTINDENT 5.f
 #define DEFAULTRADIUS 2.f
 
-static bool g_bDebug = false;
+static std::atomic_bool g_bDebug = false;
 static glm::dvec2 g_mousePos;
+static glm::dvec2 g_mouseLastPos;
 
 void change_mouse_display(GLFWwindow* pWindow, bool bDisplay)
 {
@@ -52,9 +53,6 @@ void framebuffer_size_callback(GLFWwindow* pWindow, int width, int height)
 
 void mouse_callback(GLFWwindow* pWindow, double xpos, double ypos)
 {
-    ImGuiIO& io = ImGui::GetIO();
-    io.MousePos = ImVec2((float)xpos, (float)ypos);
-    
     // prohibit using mouse in debugging mode
     if (!g_bDebug) {
         g_mousePos = glm::vec2(xpos, ypos);
@@ -79,6 +77,12 @@ void mouse_callback(GLFWwindow* pWindow, double xpos, double ypos)
         yoffset *= sensitivity;
         Camera::main_camera.update_angle(xoffset, yoffset);
     }
+    else
+    {
+        g_mouseLastPos = glm::vec2(xpos, ypos);
+        ImGuiIO& io = ImGui::GetIO();
+        io.MousePos = ImVec2((float)xpos, (float)ypos);
+    }
 }
 
 void processInput(GLFWwindow* pWindow, Camera* pCamera)
@@ -89,10 +93,11 @@ void processInput(GLFWwindow* pWindow, Camera* pCamera)
         glfwSetWindowShouldClose(pWindow, true);
     }
     
-    if(glfwGetKey(pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if(glfwGetKey(pWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS && !g_bDebug)
     {
         g_bDebug = true;
         change_mouse_display(pWindow, g_bDebug);
+        glfwSetCursorPos(pWindow, System::nScreenWidth / 2, System::nScreenHeight / 2);
     }
     
     if (pCamera == nullptr) return;
@@ -128,8 +133,8 @@ void init_imgui(GLFWwindow* window)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    //io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-Regular.ttf").data(), 18.0f);
-    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-SemiBold.ttf").data(), 16.0f);
+    //io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-Regular.ttf").data(), 20.0f);
+    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-SemiBold.ttf").data(), 20.0f);
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     
     ImGui::StyleColorsDark();
@@ -138,13 +143,14 @@ void init_imgui(GLFWwindow* window)
     
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4 defaultColor   = ImVec4(.2f, .2f, .2f, 1.f);
-    style.GrabMinSize     = 12.f;
+    style.GrabMinSize     = 10.f;
     style.GrabRounding    = DEFAULTRADIUS;
     style.FramePadding    = ImVec2(1.f, 1.f);
     style.FrameRounding   = DEFAULTRADIUS;
     style.FrameBorderSize = 1.f;
-    style.ItemSpacing     = ImVec2(3.f, 3.f);
+    style.ItemSpacing     = ImVec2(3.f, 5.f);
     style.IndentSpacing   = DEFAULTINDENT;
+    style.WindowPadding   = ImVec2(DEFAULTINDENT, DEFAULTINDENT);
     style.Colors[ImGuiCol_Header] = defaultColor;
     style.Colors[ImGuiCol_HeaderHovered] = defaultColor;
     style.Colors[ImGuiCol_HeaderActive] = defaultColor;
@@ -221,18 +227,23 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
+    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "FullScreen Example", primaryMonitor, nullptr);
     // glfw window creation
     // --------------------
-    unsigned int nScreenWidth = 1200, nScreenHeight = 800;
-    System::GetScreenSize(&nScreenWidth, &nScreenHeight);
-    GLFWwindow* window = glfwCreateWindow(nScreenWidth, nScreenHeight, "LearnOpenGL", NULL, NULL);
+    //System::GetScreenSize(&nScreenWidth, &nScreenHeight);
+    //GLFWwindow* window = glfwCreateWindow(System::nScreenWidth, System::nScreenHeight, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
+    
+    glfwGetFramebufferSize(window, &System::nScreenWidth, &System::nScreenHeight);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     
@@ -248,6 +259,7 @@ int main()
     init_imgui(window);
     
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     
     stbi_set_flip_vertically_on_load(true);
 
@@ -319,8 +331,8 @@ int main()
     Program lightShader("light_vertex.vs", "light_fragment.fs");
     
 #pragma mark init screen
-    glm::mat4 project = glm::perspective(glm::radians(45.f), (float)nScreenWidth/(float)nScreenHeight, 0.1f, 50.f);
-    Camera::main_camera.init(glm::vec3(0.f, 0.f, 10.3f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+    glm::mat4 project = glm::perspective(glm::radians(45.f), (float)System::nScreenWidth/(float)System::nScreenHeight, 0.1f, 50.f);
+    Camera::main_camera.init(glm::vec3(0.f, 0.f, 5.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     
     std::vector<SpotLight*> spotLights;
     SpotLight* spLight = new SpotLight(glm::vec3(1.2f, 1.0f, -3.0f));
@@ -333,9 +345,12 @@ int main()
     
     glfwPollEvents();
     change_mouse_display(window, false);
+    
+    const double targetFrameTime = 1.0 / 60.0;
 #pragma mark render loop
     while (!glfwWindowShouldClose(window))
     {
+        double frameStartTime = glfwGetTime();
         // update camera
         if (!g_bDebug) Camera::main_camera.update();
         
@@ -405,12 +420,19 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Debug Window");
-        if (ImGui::Button("continue"))
+        //ImGui::SetNextWindowCollapsed(!g_bDebug, ImGuiCond_Always);
+        ImGui::Begin("Debug");
+        if (ImGui::Button("continue", ImVec2(ImGui::GetContentRegionAvail().x / 2.f, 0)))
         {
+            glfwSetCursorPos(window, System::nScreenWidth / 2, System::nScreenHeight / 2);
+            g_bDebug = false;
             change_mouse_display(window, false);
             change_mouse_pos(window, g_mousePos);
-            g_bDebug = false;
+            
+            ImGuiIO& io = ImGui::GetIO();
+            io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
+            io.MouseDown[0] = io.MouseDown[1] = io.MouseDown[2] = false;
+            ImGui::SetWindowFocus();
         }
         
         if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen))
@@ -452,7 +474,8 @@ int main()
         if (ImGui::CollapsingHeader("output", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Indent(DEFAULTINDENT);
-            ImGui::Text("pos x:%f y:%f z:%f", flLight->position.x, flLight->position.y, flLight->position.z);
+            ImGui::Text("mouse pos: %.0f %.0f", g_mouseLastPos.x, g_mouseLastPos.y);
+            ImGui::Text("view pos: %.2f %.2f %.2f", flLight->position.x, flLight->position.y, flLight->position.z);
             ImGui::Unindent(DEFAULTINDENT);
         }
         
@@ -465,6 +488,12 @@ int main()
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
+        
+        double frameEndTime = glfwGetTime();
+        double frameTime = frameEndTime - frameStartTime;
+        if (frameTime < targetFrameTime) {
+            glfwWaitEventsTimeout(targetFrameTime - frameTime);
+        }
     }
 
     ImGui_ImplOpenGL3_Shutdown();
