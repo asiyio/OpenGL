@@ -16,7 +16,7 @@ namespace System
 static int nScreenWidth = 1200;
 static int nScreenHeight = 800;
 
-void GetScreenSize(unsigned int* nWidth, unsigned int* nHeight);
+void GetScreenSize(int* nWidth, int* nHeight);
 std::string ResourcePathWithFile(const std::string& file);
 
 }

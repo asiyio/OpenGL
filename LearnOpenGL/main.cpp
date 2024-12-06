@@ -4,9 +4,6 @@
 //
 //  Created by Rocky on 2024/7/27.
 //
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,17 +15,24 @@
 #include <cmath>
 
 #include "config.h"
-#include "program.h"
+#include "Program.h"
 #include "System.h"
 #include "Camera.h"
 #include "Material.hpp"
 #include "Light.hpp"
+#include "Mesh.h"
+#include "Model.h"
+
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
 #define DEFAULTINDENT 5.f
 #define DEFAULTRADIUS 2.f
+
 
 static std::atomic_bool g_bDebug = false;
 static glm::dvec2 g_mousePos;
@@ -133,9 +137,14 @@ void init_imgui(GLFWwindow* window)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    //io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-Regular.ttf").data(), 20.0f);
-    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("OpenSans-SemiBold.ttf").data(), 20.0f);
+    ImFontConfig font_config;
+    font_config.OversampleH = 3;
+    font_config.OversampleV = 3;
+    font_config.PixelSnapH = true;
+    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("STIXTwoText-SemiBold.ttf").data(), 12.0f, &font_config, io.Fonts->GetGlyphRangesDefault());
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+    io.FontGlobalScale = 1.2f;
+    
     
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -205,17 +214,49 @@ float vertices[] = {
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f
 };
 
-glm::vec3 cubePositions[] = {
-    glm::vec3( 0.0f,  0.0f,  0.0f),
-    glm::vec3( 2.0f,  5.0f, -15.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3( 2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3( 1.3f, -2.0f, -2.5f),
-    glm::vec3( 1.5f,  2.0f, -2.5f),
-    glm::vec3( 1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
+float skyboxVertices[] = {
+    // positions
+    -1.0f,  1.0f, -1.0f,
+    -1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f, -1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+
+    -1.0f, -1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f,
+    -1.0f, -1.0f,  1.0f,
+
+    -1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f, -1.0f,
+     1.0f,  1.0f,  1.0f,
+     1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f,  1.0f,
+    -1.0f,  1.0f, -1.0f,
+
+    -1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f, -1.0f,
+     1.0f, -1.0f, -1.0f,
+    -1.0f, -1.0f,  1.0f,
+     1.0f, -1.0f,  1.0f
 };
 
 int main()
@@ -229,13 +270,13 @@ int main()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
-    GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "FullScreen Example", primaryMonitor, nullptr);
+    //GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+    //const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
+    //GLFWwindow* window = glfwCreateWindow(mode->width, mode->height, "FullScreen Example", primaryMonitor, nullptr);
     // glfw window creation
     // --------------------
-    //System::GetScreenSize(&nScreenWidth, &nScreenHeight);
-    //GLFWwindow* window = glfwCreateWindow(System::nScreenWidth, System::nScreenHeight, "LearnOpenGL", NULL, NULL);
+    System::GetScreenSize(&System::nScreenWidth, &System::nScreenHeight);
+    GLFWwindow* window = glfwCreateWindow(System::nScreenWidth, System::nScreenHeight, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -260,8 +301,14 @@ int main()
     
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     
-    stbi_set_flip_vertically_on_load(true);
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    
+    //stbi_set_flip_vertically_on_load(true);
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -272,11 +319,6 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
-//    unsigned int EBO;
-//    glGenBuffers(1, &EBO);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
@@ -286,56 +328,57 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6* sizeof(float)));
     glEnableVertexAttribArray(2);
     
-    unsigned int texture1;
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    unsigned int skyboxVAO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glBindVertexArray(skyboxVAO);
     
-    int nWidth, nHeight, nNrchannel;
-    unsigned char* pData = stbi_load(System::ResourcePathWithFile("container2.png").data(), &nWidth, &nHeight, &nNrchannel, 0);
-    if (pData) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else{
-        std::cout << "texture load fail!" << std::endl;
-    }
-    stbi_image_free(pData);
-    pData = nullptr;
-    
-    unsigned int texture2;
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    pData = stbi_load(System::ResourcePathWithFile("container2_specular.png").data(), &nWidth, &nHeight, &nNrchannel, 0);
-    if (pData) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, nWidth, nHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else{
-        std::cout << "texture load fail!" << std::endl;
-    }
-    stbi_image_free(pData);
+    unsigned int skyboxVBO;
+    glGenBuffers(1, &skyboxVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
     
     glBindVertexArray(0);
     
-    Material material(texture1, texture2, 32.0f);
     Program cubeShader("cube_vertex.vert", "cube_fragment.frag");
     Program lightShader("light_vertex.vs", "light_fragment.fs");
+    Program skyboxShader("skybox_vertex.vert", "skybox_fragment.frag");
+    
+    Model suit("nanosuit/nanosuit.obj");
+    
+    unsigned int cubeMap;
+    std::vector<std::string> textures_faces = {"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"};
+    {
+        // load cubemaps
+        
+        glGenTextures(1, &cubeMap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);
+        int width, height, nrChannels;
+        unsigned char *data;
+        for(unsigned int i = 0; i < textures_faces.size(); i++)
+        {
+            std::string filepath = System::ResourcePathWithFile("skybox/" + textures_faces[i]);
+            data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
+            if (data)
+            {
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                stbi_image_free(data);
+            }
+        }
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
     
 #pragma mark init screen
     glm::mat4 project = glm::perspective(glm::radians(45.f), (float)System::nScreenWidth/(float)System::nScreenHeight, 0.1f, 50.f);
-    Camera::main_camera.init(glm::vec3(0.f, 0.f, 5.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+    Camera::main_camera.init(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     
     std::vector<SpotLight*> spotLights;
-    SpotLight* spLight = new SpotLight(glm::vec3(1.2f, 1.0f, -3.0f));
+    SpotLight* spLight = new SpotLight(glm::vec3(0.f, 5.0f, 2.0f));
     spotLights.push_back(spLight);
     
     std::vector<FlashLight*> flashLights;
@@ -352,7 +395,10 @@ int main()
     {
         double frameStartTime = glfwGetTime();
         // update camera
-        if (!g_bDebug) Camera::main_camera.update();
+        if (!g_bDebug)
+        {
+            Camera::main_camera.update();
+        }
         
         // check input
         processInput(window, &Camera::main_camera);
@@ -360,56 +406,70 @@ int main()
         
         // clean buffer
         glClearColor(0.f, 0.f, 0.f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         
         flLight->position = Camera::main_camera.get_position();
         flLight->direction = Camera::main_camera.get_forward();
 
         GLClearError();
-
+        
+#pragma mark [first step] draw skybox
         {
-            // bind texture
+            glDepthFunc(GL_LEQUAL);
+            skyboxShader.use();
+            skyboxShader.set_uniformMatrix4fv("project", project);
+            glm::mat4 pos = Camera::main_camera.get_view();
+            skyboxShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, material.diffuse);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, material.specular);
-            
-            // draw wood cube
+            glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);
+            glBindVertexArray(skyboxVAO);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDepthFunc(GL_LESS);
+        }
+        
+        {
             cubeShader.use();
             cubeShader.set_uniform3f("viewPos", Camera::main_camera.get_position());
             cubeShader.set_uniformMatrix4fv("project", project);
             cubeShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
-            
-            cubeShader.set_uniform1i("material.diffuse", 0);
-            cubeShader.set_uniform1i("material.specular", 1);
-            cubeShader.set_uniform1f("material.shininess", material.shininess);
-            
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
+            cubeShader.set_uniformMatrix4fv("model", model);
             cubeShader.set_uniformSpotLights(spotLights);
             cubeShader.set_uniformFlashLight(flashLights);
-
-            glBindVertexArray(VAO);
-            for(unsigned int i = 0; i < 10; i++)
-            {
-                glm::mat4 model;
-                model = glm::translate(model, cubePositions[i]);
-                model = glm::rotate(model, float(std::pow(-1, i % 2 )) * (float)glfwGetTime(), glm::vec3(1.f, 1.f, 1.f));
-                cubeShader.set_uniformMatrix4fv("model", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-            }
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilMask(0xFF);
+            suit.draw(cubeShader);
         }
         
         if (spLight->on)
         {
             // draw light and light cube
             lightShader.use();
-            glm::mat4 model;
-            model = glm::translate(model, spLight->position);
-            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-            
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
+            //model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
             lightShader.set_uniform3f("lightColor", spLight->color);
             lightShader.set_uniformMatrix4fv("model", model);
             lightShader.set_uniformMatrix4fv("project", project);
             lightShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+            glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+            glStencilMask(0x00);
+            glDisable(GL_DEPTH_TEST);
+            suit.draw(lightShader);
+            assert(GLCheckError());
+            glStencilMask(0xFF);
+            glStencilFunc(GL_ALWAYS, 0, 0xFF);
+            glEnable(GL_DEPTH_TEST);
+            
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, spLight->position);
+            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+            //lightShader.set_uniform3f("lightColor", spLight->color);
+            lightShader.set_uniformMatrix4fv("model", model);
+            //lightShader.set_uniformMatrix4fv("project", project);
+            //lightShader.set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+            glBindVertexArray(VAO);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         
@@ -455,6 +515,11 @@ int main()
             }
             if (ImGui::CollapsingHeader("spot light 1", ImGuiTreeNodeFlags_DefaultOpen))
             {
+                ImGui::Text("light pos:");
+                ImGui::SameLine();
+                float pos[3] = {spLight->position.x, spLight->position.y, spLight->position.z};
+                ImGui::DragFloat3("##light pos", pos, 0.02f, -100.f, 100.f, "%.2f");
+                spLight->position = glm::vec3(pos[0], pos[1], pos[2]);
                 ImGui::Checkbox("##enable spot light", &spLight->on);
                 ImGui::SameLine();
                 ImVec4 selectedColor = ImVec4(spLight->color.x, spLight->color.y, spLight->color.z, 1.0f);

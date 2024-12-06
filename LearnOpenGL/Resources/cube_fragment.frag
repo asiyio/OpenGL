@@ -6,8 +6,8 @@
 
 struct Material
 {
-    sampler2D diffuse;
-    sampler2D specular;
+    sampler2D diffuse1;
+    sampler2D specular1;
     float shininess;
 };
 
@@ -79,7 +79,7 @@ void main()
     vec3 n = normalize(normal);
     vec3 viewDir = normalize(viewPos - fragPos);
     // ambient color
-    ambient = 0.1 * vec3(texture(material.diffuse, textCoord));
+    ambient = .0f * vec3(texture(material.diffuse1, textCoord));
 
     // spot light effect
     for (int i = 0; i < num_spot_lights; i++)
@@ -89,11 +89,11 @@ void main()
             vec3 lightDir = normalize(spot_lights[i].position - fragPos);
             // diffuse color
             float diffusefactor = max(dot(n, lightDir), 0.f);
-            vec3 _diffuse = vec3(texture(material.diffuse, textCoord)) * diffusefactor;
+            vec3 _diffuse = vec3(texture(material.diffuse1, textCoord)) * diffusefactor;
             // specular color
             vec3 reflectDir = reflect(-lightDir, n);
-            float specularfactor = pow(max(dot(viewDir, reflectDir), 0.f), material.shininess);
-            vec3 _specular = vec3(texture(material.specular, textCoord)) * specularfactor;
+            float specularfactor = pow(max(dot(viewDir, reflectDir), 0.f), 32);
+            vec3 _specular = vec3(texture(material.specular1, textCoord)) * specularfactor;
 
             float distance = length(spot_lights[i].position - fragPos);
             float attenuation = 1.0 / (spot_lights[i].constant + spot_lights[i].linear * distance + spot_lights[i].quadratic * (distance * distance));
@@ -113,11 +113,11 @@ void main()
             vec3 lightDir = normalize(flash_lights[i].position - fragPos);
             // diffuse color
             float diffusefactor = max(dot(n, lightDir), 0.f);
-            vec3 _diffuse = vec3(texture(material.diffuse, textCoord)) * diffusefactor;
+            vec3 _diffuse = vec3(texture(material.diffuse1, textCoord)) * diffusefactor;
             // specular color
             vec3 reflectDir = reflect(-lightDir, n);
-            float specularfactor = pow(max(dot(viewDir, reflectDir), 0.f), material.shininess);
-            vec3 _specular = vec3(texture(material.specular, textCoord)) * specularfactor;
+            float specularfactor = pow(max(dot(viewDir, reflectDir), 0.f), 32);
+            vec3 _specular = vec3(texture(material.specular1, textCoord)) * specularfactor;
             
             float theta = dot(lightDir, normalize(-flash_lights[i].direction));
             float epsilon = flash_lights[i].cutOff - flash_lights[i].outerCutOff;

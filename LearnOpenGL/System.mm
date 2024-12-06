@@ -12,12 +12,12 @@
 namespace System
 {
 
-void GetScreenSize(unsigned int* nWidth, unsigned int* nHeight)
+void GetScreenSize(int* nWidth, int* nHeight)
 {
     NSScreen *screen = [NSScreen mainScreen];
     NSRect screenRect = [screen frame];
-    *nWidth = (unsigned int)screenRect.size.width;
-    *nHeight = (unsigned int)screenRect.size.height;
+    *nWidth = screenRect.size.width;
+    *nHeight = screenRect.size.height;
 }
 
 std::string ResourcePathWithFile(const std::string& file)
