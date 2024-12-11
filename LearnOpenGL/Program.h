@@ -25,15 +25,12 @@ public:
     /// initial program
     void init();
     
-    /// bind vertex shader on program
-    /// - Parameter shader: vertex shader content
+    /// bind shader for program
     void set_vertex_shader(const std::string& shader);
-    
-    /// bind framgent shader on program
-    /// - Parameter shader: fragment shader content
     void set_fragment_shader(const std::string& shader);
-    
-    /// use this program
+    void set_geometry_shader(const std::string& shader);
+
+    /// use the program
     void use();
     
     /// set shader uniform value

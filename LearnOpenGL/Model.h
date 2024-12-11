@@ -18,10 +18,11 @@
 class Model
 {
 public:
+    Model();
     Model(const std::string& file);
     ~Model();
     
-    void draw(Program& program);
+    void draw(Program* program);
     
 private:
     void load_model(const std::string& path);

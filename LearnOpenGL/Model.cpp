@@ -9,6 +9,11 @@
 #include "System.h"
 #include <stb/stb_image.h>
 
+Model::Model()
+{
+    
+}
+
 Model::Model(const std::string& file)
 {
     std::string path = System::ResourcePathWithFile(file);
@@ -20,9 +25,12 @@ Model::~Model()
     
 }
 
-void Model::draw(Program& program)
+void Model::draw(Program* program)
 {
-    for (int i = 0; i < m_meshes.size(); i++) {
+    if (program == nullptr) return;
+    
+    for (int i = 0; i < m_meshes.size(); i++)
+    {
         m_meshes[i].draw(program);
     }
 }

@@ -77,9 +77,63 @@ void Program::set_fragment_shader(const std::string& shader)
     }
 }
 
+void Program::set_geometry_shader(const std::string& shader)
+{
+    std::string strGeometryShader = load_shader(shader);
+    unsigned int nGeometryShader = compile_shader(GL_GEOMETRY_SHADER, strGeometryShader);
+    glAttachShader(m_program, nGeometryShader);
+    glLinkProgram(m_program);
+    glDeleteShader(nGeometryShader);
+    
+    GLint linkStatus;
+    glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
+    if (linkStatus != GL_TRUE)
+    {
+        GLchar infoLog[512];
+        glGetProgramInfoLog(m_program, sizeof(infoLog), nullptr, infoLog);
+        std::cerr << "Program linking failed:\n" << infoLog << std::endl;
+    }
+}
+
 void Program::use()
 {
+    glLinkProgram(m_program);
+    
+    GLint linkStatus;
+    glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
+    if (linkStatus == GL_FALSE) {
+        GLint maxLength = 0;
+        glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &maxLength);
+
+        std::vector<char> infoLog(maxLength);
+        glGetProgramInfoLog(m_program, maxLength, &maxLength, &infoLog[0]);
+
+        std::cerr << "shader program linking failed:\n" << &infoLog[0] << "\n";
+    } else {
+        std::cout << "shader program linked successfully\n";
+    }
+    
+    if (glIsProgram(m_program)) {
+        std::cout << "shader program is valid\n";
+    } else {
+        std::cerr << "shader program is invalid\n";
+    }
+    
     glUseProgram(m_program);
+    
+    GLenum error = glGetError();
+    if (error == GL_NO_ERROR) {
+        GLint currentProgram;
+        glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
+
+        if (currentProgram == m_program) {
+            std::cout << "shader program is active and in use\n";
+        } else {
+            std::cerr << "shader program binding failed\n";
+        }
+    } else {
+        std::cerr << "glUseProgram failed with error: " << error << "\n";
+    }
 }
 
 void Program::set_uniform1i(const std::string& key, int value)

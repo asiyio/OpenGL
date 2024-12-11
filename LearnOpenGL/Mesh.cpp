@@ -18,8 +18,10 @@ Mesh::~Mesh()
     
 }
 
-void Mesh::draw(Program& program)
+void Mesh::draw(Program* program)
 {
+    if (program == nullptr) return;
+    
     unsigned int diffIndex = 1;
     unsigned int specIndex = 1;
     for (int i = 0; i < m_textures.size(); i++)
@@ -34,7 +36,7 @@ void Mesh::draw(Program& program)
         {
             num = specIndex++;
         }
-        program.set_uniform1i("material." + m_textures[i].type + std::to_string(num), i);
+        program->set_uniform1i("material." + m_textures[i].type + std::to_string(num), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
     glBindVertexArray(m_VAO);

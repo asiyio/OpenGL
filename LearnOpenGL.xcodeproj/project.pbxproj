@@ -23,6 +23,7 @@
 		8E157BC32C663828000042E9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E157BC22C663828000042E9 /* CoreFoundation.framework */; };
 		8E3E82712C837022003156B3 /* libassimp.5.4.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EFE1CF72C83074200DAA44C /* libassimp.5.4.3.dylib */; };
 		8E3E82722C83702D003156B3 /* libassimp.5.4.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EFE1CF72C83074200DAA44C /* libassimp.5.4.3.dylib */; };
+		8E7B70EB2D08A64600E80519 /* Engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8E7B70E92D08A64600E80519 /* Engine.cpp */; };
 		8EA353B82C83770A00E82E4E /* libglfw.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8E157BC42C66385D000042E9 /* libglfw.3.dylib */; };
 		8EA353B92C83770A00E82E4E /* libglfw.3.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 8E157BC42C66385D000042E9 /* libglfw.3.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		8EA9CF962C679E0F0010ACFB /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EA9CF942C679E0F0010ACFB /* Camera.cpp */; };
@@ -79,6 +80,8 @@
 		8E157BC22C663828000042E9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		8E157BC42C66385D000042E9 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libglfw.3.dylib; path = "lib/lib-arm64/libglfw.3.dylib"; sourceTree = "<group>"; };
 		8E1620832C763E5B008E092E /* Material.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Material.hpp; sourceTree = "<group>"; };
+		8E7B70E92D08A64600E80519 /* Engine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Engine.cpp; sourceTree = "<group>"; };
+		8E7B70EA2D08A64600E80519 /* Engine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Engine.h; sourceTree = "<group>"; };
 		8E9A01DD2C7643B900894FBE /* Light.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Light.hpp; sourceTree = "<group>"; };
 		8EA9CF942C679E0F0010ACFB /* Camera.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
 		8EA9CF952C679E0F0010ACFB /* Camera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
@@ -86,6 +89,7 @@
 		8EB62DA12C82FB6000326ED5 /* Mesh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Mesh.h; sourceTree = "<group>"; };
 		8EB62DA22C82FB7200326ED5 /* Mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
 		8EBB3D9F2C84459D004EEDBF /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		8EEA636A2D09CDC700B0E520 /* VerticesData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VerticesData.h; sourceTree = "<group>"; };
 		8EF389E92C66665F00A4B5DA /* System.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = System.mm; sourceTree = "<group>"; };
 		8EF389EA2C66665F00A4B5DA /* System.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
 		8EF389EC2C66693E00A4B5DA /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -159,12 +163,14 @@
 			children = (
 				8EA9CF952C679E0F0010ACFB /* Camera.h */,
 				8E157B9A2C663437000042E9 /* config.h */,
+				8E7B70EA2D08A64600E80519 /* Engine.h */,
 				8E9A01DD2C7643B900894FBE /* Light.hpp */,
 				8E1620832C763E5B008E092E /* Material.hpp */,
 				8EB62DA12C82FB6000326ED5 /* Mesh.h */,
 				8EFE1CF52C83053700DAA44C /* Model.h */,
 				8E157B9B2C663437000042E9 /* Program.h */,
 				8EF389EA2C66665F00A4B5DA /* System.h */,
+				8EEA636A2D09CDC700B0E520 /* VerticesData.h */,
 			);
 			name = Header;
 			sourceTree = "<group>";
@@ -175,6 +181,7 @@
 				8EA9CF942C679E0F0010ACFB /* Camera.cpp */,
 				8E157B962C66342F000042E9 /* glad.c */,
 				8E157B812C663308000042E9 /* main.cpp */,
+				8E7B70E92D08A64600E80519 /* Engine.cpp */,
 				8EB62DA22C82FB7200326ED5 /* Mesh.cpp */,
 				8EFE1CF42C83053700DAA44C /* Model.cpp */,
 				8E157B972C66342F000042E9 /* Program.cpp */,
@@ -323,6 +330,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8EB62DA32C82FB7200326ED5 /* Mesh.cpp in Sources */,
+				8E7B70EB2D08A64600E80519 /* Engine.cpp in Sources */,
 				8EA9CF962C679E0F0010ACFB /* Camera.cpp in Sources */,
 				8E157B822C663308000042E9 /* main.cpp in Sources */,
 				8E157B992C66342F000042E9 /* Program.cpp in Sources */,

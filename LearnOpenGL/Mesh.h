@@ -32,7 +32,7 @@ public:
     Mesh(std::vector<Vertex> _vetexs, std::vector<unsigned int> _indices, std::vector<Texture> _texture);
     ~Mesh();
     
-    void draw(Program& program);
+    void draw(Program* program);
     
 private:
     void setup_mesh();
