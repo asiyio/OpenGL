@@ -30,19 +30,22 @@ public:
     
     void init(glm::vec3 position, glm::vec3 target, glm::vec3 up);
     void update();
+    void update_angle(float xOffset, float yOffset);
     void move(MOVE_DIRECTION dir);
-    void rotate(glm::vec3 forward);
     glm::mat4 get_view();
     glm::vec3 get_position();
+    glm::vec3 get_forward();
     
 private:
-    float m_speed;
-    glm::mat4 m_view;
-    glm::vec3 m_position;
-    glm::vec3 m_target;
-    glm::vec3 m_up;
-    glm::vec3 m_right;
-    glm::vec3 m_forward;
+    glm::mat4   m_view;
+    glm::vec3   m_position;
+    glm::vec3   m_target;
+    glm::vec3   m_up;
+    glm::vec3   m_right;
+    glm::vec3   m_forward;
+    float       m_speed;
+    float       m_pitch;
+    float       m_yaw;
     
 public:
     static Camera main_camera;
