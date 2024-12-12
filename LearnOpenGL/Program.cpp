@@ -27,8 +27,8 @@ Program::Program(const std::string& vertex_shader, const std::string& fragment_s
     : m_program(0)
 {
     init();
-    set_vertex_shader(vertex_shader);
-    set_fragment_shader(fragment_shader);
+    setVertexShader(vertex_shader);
+    setFragmentShader(fragment_shader);
 }
 
 Program::~Program()
@@ -41,10 +41,10 @@ void Program::init()
     m_program = glCreateProgram();
 }
 
-void Program::set_vertex_shader(const std::string& shader)
+void Program::setVertexShader(const std::string& shader)
 {
-    std::string strVertexShader = load_shader(shader);
-    unsigned int nVertexShader = compile_shader(GL_VERTEX_SHADER, strVertexShader);
+    std::string strVertexShader = loadShader(shader);
+    unsigned int nVertexShader = compileShader(GL_VERTEX_SHADER, strVertexShader);
     glAttachShader(m_program, nVertexShader);
     glLinkProgram(m_program);
     glDeleteShader(nVertexShader);
@@ -59,10 +59,10 @@ void Program::set_vertex_shader(const std::string& shader)
     }
 }
 
-void Program::set_fragment_shader(const std::string& shader)
+void Program::setFragmentShader(const std::string& shader)
 {
-    std::string strFragmentShader = load_shader(shader);
-    unsigned int nFragmentShader = compile_shader(GL_FRAGMENT_SHADER, strFragmentShader);
+    std::string strFragmentShader = loadShader(shader);
+    unsigned int nFragmentShader = compileShader(GL_FRAGMENT_SHADER, strFragmentShader);
     glAttachShader(m_program, nFragmentShader);
     glLinkProgram(m_program);
     glDeleteShader(nFragmentShader);
@@ -77,10 +77,10 @@ void Program::set_fragment_shader(const std::string& shader)
     }
 }
 
-void Program::set_geometry_shader(const std::string& shader)
+void Program::setGeometryShader(const std::string& shader)
 {
-    std::string strGeometryShader = load_shader(shader);
-    unsigned int nGeometryShader = compile_shader(GL_GEOMETRY_SHADER, strGeometryShader);
+    std::string strGeometryShader = loadShader(shader);
+    unsigned int nGeometryShader = compileShader(GL_GEOMETRY_SHADER, strGeometryShader);
     glAttachShader(m_program, nGeometryShader);
     glLinkProgram(m_program);
     glDeleteShader(nGeometryShader);
@@ -136,111 +136,111 @@ void Program::use()
     }
 }
 
-void Program::set_uniform1i(const std::string& key, int value)
+void Program::setUniform1i(const std::string& key, int value)
 {
-    GLuint location = get_location(key);
+    GLuint location = getLocation(key);
     if (location >= 0)
     {
         glUniform1i(location, value);
     }
 }
 
-void Program::set_uniform1f(const std::string& key, float value)
+void Program::setUniform1f(const std::string& key, float value)
 {
-    GLuint location = get_location(key);
+    GLuint location = getLocation(key);
     if (location >= 0)
     {
         glUniform1f(location, value);
     }
 }
 
-void Program::set_uniform3f(const std::string& key, const glm::vec3& value)
+void Program::setUniform3f(const std::string& key, const glm::vec3& value)
 {
-    GLuint location = get_location(key);
+    GLuint location = getLocation(key);
     if (location >= 0)
     {
         glUniform3f(location, value.x, value.y, value.z);
     }
 }
 
-void Program::set_uniform3f(const std::string& key, float x, float y, float z)
+void Program::setUniform3f(const std::string& key, float x, float y, float z)
 {
-    GLuint location = get_location(key);
+    GLuint location = getLocation(key);
     if (location >= 0)
     {
         glUniform3f(location, x, y, z);
     }
 }
 
-void Program::set_uniformMatrix4fv(const std::string& key, const glm::mat4& value)
+void Program::setUniformMatrix4fv(const std::string& key, const glm::mat4& value)
 {
-    GLuint location = get_location(key);
+    GLuint location = getLocation(key);
     if (location >= 0)
     {
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
     }
 }
 
-void Program::set_uniformSpotLights(const std::vector<SpotLight*>& spotLights)
+void Program::setUniformSpotLights(const std::vector<SpotLight*>& spotLights)
 {
     std::string key = "";
-    set_uniform1i("num_spot_lights", (int)spotLights.size());
+    setUniform1i("num_spot_lights", (int)spotLights.size());
     for (int i = 0; i < spotLights.size(); i++) {
         key = "spot_lights[" + std::to_string(i) + "].position";
-        set_uniform3f(key, spotLights[i]->position);
+        setUniform3f(key, spotLights[i]->position);
         
         key = "spot_lights[" + std::to_string(i) + "].color";
-        set_uniform3f(key, spotLights[i]->color);
+        setUniform3f(key, spotLights[i]->color);
         
         key = "spot_lights[" + std::to_string(i) + "].constant";
-        set_uniform1f(key, spotLights[i]->constant);
+        setUniform1f(key, spotLights[i]->constant);
         
         key = "spot_lights[" + std::to_string(i) + "].linear";
-        set_uniform1f(key, spotLights[i]->linear);
+        setUniform1f(key, spotLights[i]->linear);
         
         key = "spot_lights[" + std::to_string(i) + "].quadratic";
-        set_uniform1f(key, spotLights[i]->quadratic);
+        setUniform1f(key, spotLights[i]->quadratic);
         
         key = "spot_lights[" + std::to_string(i) + "].on";
-        set_uniform1i(key, spotLights[i]->on);
+        setUniform1i(key, spotLights[i]->on);
     }
 }
 
-void Program::set_uniformFlashLight(const std::vector<FlashLight*>& flashLights)
+void Program::setUniformFlashLight(const std::vector<FlashLight*>& flashLights)
 {
     std::string key = "";
-    set_uniform1i("num_flash_lights", (int)flashLights.size());
+    setUniform1i("num_flash_lights", (int)flashLights.size());
     for (int i = 0; i < flashLights.size(); i++) {
         key = "flash_lights[" + std::to_string(i) + "].position";
-        set_uniform3f(key, flashLights[i]->position);
+        setUniform3f(key, flashLights[i]->position);
         
         key = "flash_lights[" + std::to_string(i) + "].direction";
-        set_uniform3f(key, flashLights[i]->direction);
+        setUniform3f(key, flashLights[i]->direction);
         
         key = "flash_lights[" + std::to_string(i) + "].color";
-        set_uniform3f(key, flashLights[i]->color * flashLights[i]->intensity);
+        setUniform3f(key, flashLights[i]->color * flashLights[i]->intensity);
         
         key = "flash_lights[" + std::to_string(i) + "].cutOff";
-        set_uniform1f(key, flashLights[i]->cutOff);
+        setUniform1f(key, flashLights[i]->cutOff);
         
         key = "flash_lights[" + std::to_string(i) + "].outerCutOff";
-        set_uniform1f(key, flashLights[i]->outerCutOff);
+        setUniform1f(key, flashLights[i]->outerCutOff);
         
         key = "flash_lights[" + std::to_string(i) + "].constant";
-        set_uniform1f(key, flashLights[i]->constant);
+        setUniform1f(key, flashLights[i]->constant);
         
         key = "flash_lights[" + std::to_string(i) + "].linear";
-        set_uniform1f(key, flashLights[i]->linear);
+        setUniform1f(key, flashLights[i]->linear);
         
         key = "flash_lights[" + std::to_string(i) + "].quadratic";
-        set_uniform1f(key, flashLights[i]->quadratic);
+        setUniform1f(key, flashLights[i]->quadratic);
         
         key = "flash_lights[" + std::to_string(i) + "].on";
-        set_uniform1i(key, flashLights[i]->on);
+        setUniform1i(key, flashLights[i]->on);
     }
 }
 
-GLuint Program::get_location(const std::string& param)
+GLuint Program::getLocation(const std::string& param)
 {
     GLuint location = -1;
     if (m_mapUniformLoc.find(param) != m_mapUniformLoc.end())
@@ -258,9 +258,9 @@ GLuint Program::get_location(const std::string& param)
     return location;
 }
 
-std::string Program::load_shader(const std::string &file_name)
+std::string Program::loadShader(const std::string &file_name)
 {
-    std::string path = System::ResourcePathWithFile(file_name);
+    std::string path = System::resourcePathWithFile(file_name);
     std::ifstream file(path);
 
     if (!file)
@@ -275,7 +275,7 @@ std::string Program::load_shader(const std::string &file_name)
     return buffer.str();
 }
 
-unsigned int Program::compile_shader(unsigned int type, const std::string& shader)
+unsigned int Program::compileShader(unsigned int type, const std::string& shader)
 {
     unsigned int id = glCreateShader(type);
     const char* scr = shader.c_str();

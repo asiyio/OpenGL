@@ -30,11 +30,11 @@ public:
     
     void init(glm::vec3 position, glm::vec3 target, glm::vec3 up);
     void update();
-    void update_angle(float xOffset, float yOffset);
+    void updateAngle(float xOffset, float yOffset);
     void move(MOVE_DIRECTION dir);
-    glm::mat4 get_view();
-    glm::vec3 get_position();
-    glm::vec3 get_forward();
+    glm::mat4 getView();
+    glm::vec3 getPosition();
+    glm::vec3 getForward();
     
 private:
     glm::mat4   m_view;

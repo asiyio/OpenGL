@@ -37,7 +37,7 @@ void Camera::update()
     m_view = glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
-void Camera::update_angle(float xOffset, float yOffset)
+void Camera::updateAngle(float xOffset, float yOffset)
 {
     m_yaw   += xOffset;
     m_pitch += yOffset;
@@ -75,17 +75,17 @@ void Camera::move(MOVE_DIRECTION dir)
     }
 }
 
-glm::mat4 Camera::get_view()
+glm::mat4 Camera::getView()
 {
     return m_view;
 }
 
-glm::vec3 Camera::get_position()
+glm::vec3 Camera::getPosition()
 {
     return m_position;
 }
 
-glm::vec3 Camera::get_forward()
+glm::vec3 Camera::getForward()
 {
     return m_forward;
 }
