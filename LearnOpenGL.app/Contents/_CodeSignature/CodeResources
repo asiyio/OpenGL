@@ -4,6 +4,10 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Resources/.DS_Store</key>
+		<data>
+		pQdaDdajRAYHi7T+vWP3lpG/63Q=
+		</data>
 		<key>Resources/AppIcon.icns</key>
 		<data>
 		nYanCZnCAXULrNKd7GmKxTGkbQI=
@@ -19,6 +23,14 @@
 		<key>Resources/OpenSans-SemiBold.ttf</key>
 		<data>
 		soqqUkvzzjF0aab8mkvoG2qo5P4=
+		</data>
+		<key>Resources/STIXTwoText-Regular.ttf</key>
+		<data>
+		lp6kRDE3VUpzrbJsaR9IiHtsNlE=
+		</data>
+		<key>Resources/STIXTwoText-SemiBold.ttf</key>
+		<data>
+		1b26/oIee6J1+Lt0+P9kA9moKMc=
 		</data>
 		<key>Resources/awesomeface.png</key>
 		<data>
@@ -36,29 +48,190 @@
 		<data>
 		hudeUPmk2rR3OI1GoVT+cdr1sj8=
 		</data>
-		<key>Resources/cube_fragment.frag</key>
+		<key>Resources/cube.fs</key>
 		<data>
-		7Pl20rGy+h25nNwxWyKVbHHe5r8=
+		w9wyS5N/7WBlOKFoWk6g13ondlE=
 		</data>
-		<key>Resources/cube_vertex.vert</key>
+		<key>Resources/cube.vs</key>
 		<data>
 		DYeRIinfztpMZF0i1CXcjSo/5kY=
 		</data>
-		<key>Resources/imgui.ini</key>
+		<key>Resources/frontsight.fs</key>
 		<data>
-		ywGKwa5/VnmsXg4qTM+8b5N22Sk=
+		44/I1VXM+XzkiXt01nWgFSdmHAk=
 		</data>
-		<key>Resources/light_fragment.fs</key>
+		<key>Resources/frontsight.gs</key>
+		<data>
+		aojSkXBNYvmA2euxTFKo8YdTZ2w=
+		</data>
+		<key>Resources/frontsight.vs</key>
+		<data>
+		k6VYyPl5jWJsTdJB2fgmK3d2vzc=
+		</data>
+		<key>Resources/light.fs</key>
 		<data>
 		ObM0zdSUi6gDgzVTuIrdVYpX0JU=
 		</data>
-		<key>Resources/light_vertex.vs</key>
+		<key>Resources/light.vs</key>
 		<data>
-		RS3tMQEgPX7nJBxwko+qNByznBg=
+		YPsIlMdEs8UrHlaR9XNDoUBRAXE=
+		</data>
+		<key>Resources/nanosuit/.DS_Store</key>
+		<data>
+		1F7MhdS+/D9xzqnMXYSKcsAwwc8=
+		</data>
+		<key>Resources/nanosuit/LICENSE.txt</key>
+		<data>
+		5nkPaOsdCKHdjgj6rX1Amcu8qJc=
+		</data>
+		<key>Resources/nanosuit/arm_dif.png</key>
+		<data>
+		er6syihsKAjEiMajPia2LU/SfwU=
+		</data>
+		<key>Resources/nanosuit/arm_showroom_ddn.png</key>
+		<data>
+		XKVaEk97u08W6ChM1v6mLfuaiLA=
+		</data>
+		<key>Resources/nanosuit/arm_showroom_spec.png</key>
+		<data>
+		pvd7iRbbswGGpkFDJ7u2TT6deXA=
+		</data>
+		<key>Resources/nanosuit/body_dif.png</key>
+		<data>
+		EnBpCc27uTPvjcRrFZkSkTkZkyg=
+		</data>
+		<key>Resources/nanosuit/body_showroom_ddn.png</key>
+		<data>
+		w8EvcQ6dK8AZwtUpeMBig2huP0A=
+		</data>
+		<key>Resources/nanosuit/body_showroom_spec.png</key>
+		<data>
+		MAPaV4Z/+RnKeEnP7VhJwcfhKxw=
+		</data>
+		<key>Resources/nanosuit/glass_ddn.png</key>
+		<data>
+		pJWQxDiNPfgXOby+3Zv/TAha/hw=
+		</data>
+		<key>Resources/nanosuit/glass_dif.png</key>
+		<data>
+		OX2iTJFa7bjdqu8NdwNJmpQgtSw=
+		</data>
+		<key>Resources/nanosuit/hand_dif.png</key>
+		<data>
+		TduvSD7jaSOTwtRCExD0jLcqEbE=
+		</data>
+		<key>Resources/nanosuit/hand_showroom_ddn.png</key>
+		<data>
+		tjS5LYg6JB3+r/oEhjAqlik98wI=
+		</data>
+		<key>Resources/nanosuit/hand_showroom_spec.png</key>
+		<data>
+		PwAp0wG+Vy7tRxrKgZcykKU2AN4=
+		</data>
+		<key>Resources/nanosuit/helmet_diff.png</key>
+		<data>
+		/+uZHJx205r5Osz9YvMdvwFZiqQ=
+		</data>
+		<key>Resources/nanosuit/helmet_showroom_ddn.png</key>
+		<data>
+		X+ms0/qZH9xTKkPtDmc6O3CuCUE=
+		</data>
+		<key>Resources/nanosuit/helmet_showroom_spec.png</key>
+		<data>
+		2WiXwk+He2aJZIpnFGacR7hND9A=
+		</data>
+		<key>Resources/nanosuit/leg_dif.png</key>
+		<data>
+		hBIQFiM7fbKat8IveIFFPeQl4j0=
+		</data>
+		<key>Resources/nanosuit/leg_showroom_ddn.png</key>
+		<data>
+		Zt4dGFSGKMX9DZoujJAZlu/Bzqg=
+		</data>
+		<key>Resources/nanosuit/leg_showroom_spec.png</key>
+		<data>
+		fjv/mSXnh1wuhYMU2Wus+/nyT+s=
+		</data>
+		<key>Resources/nanosuit/nanosuit.blend</key>
+		<data>
+		sdBnaitgbZLs2FOsrE12wmKaNgY=
+		</data>
+		<key>Resources/nanosuit/nanosuit.mtl</key>
+		<data>
+		ZXRdRO7yvJs7rWiSrTfrOgr3oM8=
+		</data>
+		<key>Resources/nanosuit/nanosuit.obj</key>
+		<data>
+		hM+KgCSlVL/PclUjIdzj4jGKPwM=
+		</data>
+		<key>Resources/plane/.DS_Store</key>
+		<data>
+		xFsidYqWiACYPObuMe1JWHSJ79M=
+		</data>
+		<key>Resources/plane/Diffuse2B.jpg</key>
+		<data>
+		WzhoQvg2UwSZKOm8RXtquzgQqyc=
+		</data>
+		<key>Resources/plane/Rough2B.png</key>
+		<data>
+		fUBbGErWNnamqSVt1QzsiEgEnYA=
+		</data>
+		<key>Resources/plane/normal2C.png</key>
+		<data>
+		LVBsYTr+Y6OXAzLRokRT8jaEWfU=
+		</data>
+		<key>Resources/plane/wood.mtl</key>
+		<data>
+		dabqKiU6UFpdhHdBxWiR44eiLj0=
+		</data>
+		<key>Resources/plane/wood.obj</key>
+		<data>
+		o5/qpcsPOAtRxCWIYBAyeqmEy2Y=
+		</data>
+		<key>Resources/skybox.fs</key>
+		<data>
+		tLbfdbpLKfgN+BIOuctcLp6nMqc=
+		</data>
+		<key>Resources/skybox.vs</key>
+		<data>
+		ineYs8mVTKLtdaVz3FgBQj0KqsY=
+		</data>
+		<key>Resources/skybox/back.jpg</key>
+		<data>
+		jvzunU1TgQ42E0JMGdACGt5CQtM=
+		</data>
+		<key>Resources/skybox/bottom.jpg</key>
+		<data>
+		ZzxEXDSjxoeszIuZ5m4IT9bPHj8=
+		</data>
+		<key>Resources/skybox/front.jpg</key>
+		<data>
+		N5cZTP2W6BT/81nnwUbSOh//LdI=
+		</data>
+		<key>Resources/skybox/left.jpg</key>
+		<data>
+		ZpzJzscPUK9XuVy815Ymf+ZH6GM=
+		</data>
+		<key>Resources/skybox/right.jpg</key>
+		<data>
+		aetaB5xKbuLAJMgR4rAPA2Zljxs=
+		</data>
+		<key>Resources/skybox/top.jpg</key>
+		<data>
+		4GDL8oLzMhbwGxT3dFQZHyRtKQc=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Frameworks/libassimp.5.4.3.dylib</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			OiDGz0txo6vbG+x8S0okvsiu2+U=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"3a20c6cf4b71a3abdb1bec7c4b4a24bec8aedbe5"</string>
+		</dict>
 		<key>Frameworks/libglfw.3.dylib</key>
 		<dict>
 			<key>cdhash</key>
@@ -96,6 +269,20 @@
 			SkE3EWhKndVk7w8cEMtitdn3623yz/li9TQabs1fZK4=
 			</data>
 		</dict>
+		<key>Resources/STIXTwoText-Regular.ttf</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			BWahvkEcCyRj+thWOzPxwplEK4iCx/zp75XgefQyM9o=
+			</data>
+		</dict>
+		<key>Resources/STIXTwoText-SemiBold.ttf</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			JCx8+x6P+wtS6F+vGOmxi6zEXOjUBG3EchWyzwasd+A=
+			</data>
+		</dict>
 		<key>Resources/awesomeface.png</key>
 		<dict>
 			<key>hash2</key>
@@ -124,39 +311,291 @@
 			s4BzFDDr5X3bDoIvMO8JZHrd7u/6ZhfllwSl5qoLCBo=
 			</data>
 		</dict>
-		<key>Resources/cube_fragment.frag</key>
+		<key>Resources/cube.fs</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			lmiyWDHcBY7q2LTxGvePEIjhhwsVeWIjtQTe59qlZxM=
+			xG+1SS3HizOSzV/LB1b+L8+M6VPGoRws7x0AVluJvhs=
 			</data>
 		</dict>
-		<key>Resources/cube_vertex.vert</key>
+		<key>Resources/cube.vs</key>
 		<dict>
 			<key>hash2</key>
 			<data>
 			Y8jGQEMy/UcIlVkDy9ZZxfM//yJ1lppDoCMWjlSlAeU=
 			</data>
 		</dict>
-		<key>Resources/imgui.ini</key>
+		<key>Resources/frontsight.fs</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			/7evbjBauZ7mCzOj6qRhgPhjvmLIRIbHoZyYp+2F+Dk=
+			SFTwttr42PgM59Ib3swaEBodxSSHbFAX11uKdy/F7IE=
 			</data>
 		</dict>
-		<key>Resources/light_fragment.fs</key>
+		<key>Resources/frontsight.gs</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			KAYIta4A0RS+nkQ5T91YbOc2s/GJIavVPkhrzcObF8s=
+			</data>
+		</dict>
+		<key>Resources/frontsight.vs</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			7DhDr2ny2ZoF5pLQ1KgLpvlTLIVu95rLqUgaiIyr0mo=
+			</data>
+		</dict>
+		<key>Resources/light.fs</key>
 		<dict>
 			<key>hash2</key>
 			<data>
 			79fpNAlvfieVfWAju8dpo1SiNLE0sxsaf4pi8w+udnk=
 			</data>
 		</dict>
-		<key>Resources/light_vertex.vs</key>
+		<key>Resources/light.vs</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			WmtcDRFKaGmQN7Bftx4uPU76JrZ03tQUzZNHliT6zjA=
+			JJRSjiiv1Xaaaglluf+v/u7++5aDz+5238WFXVgc324=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/LICENSE.txt</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			OLOEWq93EgbSnPOHlU5UhMaHxHMq8BGq0kkDS7Ffg+I=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/arm_dif.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			RsjS87wSZR0kkbVaNUaGCPsHKo/TPs2GB2UyzlPqSmQ=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/arm_showroom_ddn.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			kzMa0sPWSwrvWupNjMutpptxeeNOMh3Mj+nnlLIEuYE=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/arm_showroom_spec.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			0DeEaKjPGSSbiBPdxlbdXJVfsEOVFkGUZKFNRONxb3o=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/body_dif.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			PdquxDigEzEKWQWjxX3u7L0wjqkWuJPoGpqViFdueVU=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/body_showroom_ddn.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			HYG6SitPfJng80rw39AvO2aMW3wBiZSytQw4IbMDaew=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/body_showroom_spec.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			//ioWPfwg7fvh48tu5NDMHiifxxpyZsNekVp3JJMUVI=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/glass_ddn.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			j4pLwZ4ib22Gu1XCBCJVmrDjx55JNDy2YK1Hh2hciJ8=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/glass_dif.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			SGengK4SyWuIrxQjdqxKP0jqHJavNV7VonwtDzfC1+M=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/hand_dif.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			7LeFqIQJswboP2//4NsCtLTM9t+KBgfDO91ytpsdb7o=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/hand_showroom_ddn.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			FPFwDXO3fM317v/CujPfxSjCCuhg20hGZqcLIapzqzM=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/hand_showroom_spec.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			lb3Dpz/D/AcsY2RewXXEAgt2q3zMnb8Dk+voPNJQDSw=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/helmet_diff.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			bZBlvuU8agRC3iNyGHxm0Vb6DHGmhWk638yTP2phx5g=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/helmet_showroom_ddn.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			VU89/54eFTGHrcSm5EFq6jg9Oli3oETdQvFi7Lp/qUU=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/helmet_showroom_spec.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			NoUJPO98ZFnjPeAOM5re59Z4nQ7QrfOQ6Bw3e0ExnRY=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/leg_dif.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Vxf5B5Y68c5iYAmHOTGVdI/StSE453wa7IWfQA4C240=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/leg_showroom_ddn.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			rDqhd3ds783IbLy6iD/mcoGhOIo38sqsmRStPLLZG4A=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/leg_showroom_spec.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			aUAou5zmUnx1mz3ap41xnDPE1qx0xr7+1qB+xEygbow=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/nanosuit.blend</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Zyj7wyAQMBG0bXO4jg7jXElhNKg9igRpD671Ei/xQrE=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/nanosuit.mtl</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			E2kdzwuU2m4yNU/SaANTKEKsO2Hx85Pbn5fInKkzPS0=
+			</data>
+		</dict>
+		<key>Resources/nanosuit/nanosuit.obj</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			CHX2TwduQJCyulG7Ma6bU/bn9LYKHsEmUtZxPoUXeqA=
+			</data>
+		</dict>
+		<key>Resources/plane/Diffuse2B.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			RqgJTVL77toJ3x6wm/nByzozF4TOaRnstAkThGgSKUY=
+			</data>
+		</dict>
+		<key>Resources/plane/Rough2B.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			TSY5ypvmzQ5SZ1HtJa2cGnvnrs2yvqJAgO9Qr2i+fDE=
+			</data>
+		</dict>
+		<key>Resources/plane/normal2C.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			MC1QapdQrh3YJ2/jRUuMvyzwmICYIrdFq3lJjlZGhe8=
+			</data>
+		</dict>
+		<key>Resources/plane/wood.mtl</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			lDQPz888oKzkv6MrWvQ9Or6/RZdd9un01NxL5p5ajiM=
+			</data>
+		</dict>
+		<key>Resources/plane/wood.obj</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			kBbShMthlisDQ7yEK+EwAaL6/nPkncwWayV3KBfT+jE=
+			</data>
+		</dict>
+		<key>Resources/skybox.fs</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			fjUwyGbtTVDHc3y+56zDTq4ml1l7FzHKbyNP7BK1gt8=
+			</data>
+		</dict>
+		<key>Resources/skybox.vs</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			678+5q0eZi5CO/3V6l9QgjZu9lGVhyAqbNl62CBRW3k=
+			</data>
+		</dict>
+		<key>Resources/skybox/back.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			2kk4A59qU2x9s/ujX/3ZBYYc42YIzq30QSR5xfys0Tg=
+			</data>
+		</dict>
+		<key>Resources/skybox/bottom.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			CI8HQnL3MavcnaYBz5Ja64AGDQSO8z0qYN0bIV1B/uw=
+			</data>
+		</dict>
+		<key>Resources/skybox/front.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			3W+di7BEZsBjh+jcc260U7y5Kgl1C+UguNXgDovUhP4=
+			</data>
+		</dict>
+		<key>Resources/skybox/left.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			CH3wzcLSi36fX2stgnlaprEGhM5R0xBOjdPBKLSFqWA=
+			</data>
+		</dict>
+		<key>Resources/skybox/right.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			1KG2/Z2v/ftsQtDcFpz/unEpqNfaP6tSUx5N9KIDGR0=
+			</data>
+		</dict>
+		<key>Resources/skybox/top.jpg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/wqlTRW3xp/G+uc4+UOFSVCmev17Gk4peAlmiyOA4FU=
 			</data>
 		</dict>
 	</dict>

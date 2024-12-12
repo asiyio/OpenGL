@@ -12,7 +12,7 @@
 namespace System
 {
 
-void GetScreenSize(int* nWidth, int* nHeight)
+void getScreenSize(int* nWidth, int* nHeight)
 {
     NSScreen *screen = [NSScreen mainScreen];
     NSRect screenRect = [screen frame];
@@ -20,7 +20,7 @@ void GetScreenSize(int* nWidth, int* nHeight)
     *nHeight = screenRect.size.height;
 }
 
-std::string ResourcePathWithFile(const std::string& file)
+std::string resourcePathWithFile(const std::string& file)
 {
     NSString* path = [[NSBundle mainBundle] resourcePath];
     

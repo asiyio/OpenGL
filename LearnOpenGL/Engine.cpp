@@ -23,13 +23,13 @@
 #define DEFAULT_RADIUS 2.f
 #define SEGMENTS 100
 
-void framebuffer_size_callback(GLFWwindow* pWindow, int width, int height);
-void mouse_callback(GLFWwindow* pWindow, double x, double y);
+void framebufferSizeCallback(GLFWwindow* pWindow, int width, int height);
+void mouseCallback(GLFWwindow* pWindow, double x, double y);
 void processInput(GLFWwindow* pWindow, Camera* pCamera);
 void changeMouseDisplay(GLFWwindow* pWindow, bool bDisplay);
 void changeMousePos(GLFWwindow* pWindow, glm::dvec2 mousePos);
-void GLClearError();
-bool GLCheckError();
+void gLClearError();
+bool gLCheckError();
 void generateCircleVertices(float* vertices, int windowWidth, int windowHeight);
 
 static glm::dvec2 g_mousePos;
@@ -109,7 +109,7 @@ bool Engine::createWindow()
     }
     else
     {
-        System::GetScreenSize(&System::nScreenWidth, &System::nScreenHeight);
+        System::getScreenSize(&System::nScreenWidth, &System::nScreenHeight);
         m_pWindow = glfwCreateWindow(System::nScreenWidth, System::nScreenHeight, "LearnOpenGL", NULL, NULL);
     }
     
@@ -117,7 +117,7 @@ bool Engine::createWindow()
     {
         glfwGetFramebufferSize(m_pWindow, &System::nScreenWidth, &System::nScreenHeight);
         glfwMakeContextCurrent(m_pWindow);
-        glfwSetFramebufferSizeCallback(m_pWindow, framebuffer_size_callback);
+        glfwSetFramebufferSizeCallback(m_pWindow, framebufferSizeCallback);
     }
     else
     {
@@ -221,7 +221,7 @@ void Engine::createTextures()
         unsigned char *data;
         for(unsigned int i = 0; i < textures_faces.size(); i++)
         {
-            std::string filepath = System::ResourcePathWithFile("skybox/" + textures_faces[i]);
+            std::string filepath = System::resourcePathWithFile("skybox/" + textures_faces[i]);
             data = stbi_load(filepath.c_str(), &width, &height, &nrChannels, 0);
             if (data)
             {
@@ -242,7 +242,7 @@ void Engine::initScene()
 {
     m_project = glm::perspective(glm::radians(45.f), (float)System::nScreenWidth/(float)System::nScreenHeight, 0.1f, 50.f);
     Camera::main_camera.init(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
-    Camera::main_camera.update_angle(0.f, 0.f);
+    Camera::main_camera.updateAngle(0.f, 0.f);
     
     changeMouseDisplay(m_pWindow, false);
 }
@@ -260,7 +260,7 @@ void Engine::initImgui()
     font_config.OversampleH = 3;
     font_config.OversampleV = 3;
     font_config.PixelSnapH = true;
-    io.Fonts->AddFontFromFileTTF(System::ResourcePathWithFile("STIXTwoText-SemiBold.ttf").data(), 12.0f, &font_config, io.Fonts->GetGlyphRangesDefault());
+    io.Fonts->AddFontFromFileTTF(System::resourcePathWithFile("STIXTwoText-SemiBold.ttf").data(), 12.0f, &font_config, io.Fonts->GetGlyphRangesDefault());
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.FontGlobalScale = 1.2f;
     
@@ -292,26 +292,26 @@ void Engine::render()
             
             // check input and update camera
             processInput(m_pWindow, &Camera::main_camera);
-            glfwSetCursorPosCallback(m_pWindow, mouse_callback);
+            glfwSetCursorPosCallback(m_pWindow, mouseCallback);
             if (!bDebugging) Camera::main_camera.update();
 
             // clean buffer
             glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             
-            m_flashLight->position = Camera::main_camera.get_position();
-            m_flashLight->direction = Camera::main_camera.get_forward();
+            m_flashLight->position = Camera::main_camera.getPosition();
+            m_flashLight->direction = Camera::main_camera.getForward();
             
             
             
-            GLClearError();
+            gLClearError();
             {
                 glDepthFunc(GL_LEQUAL);
                 Program* skyboxShader = m_programs.at("skybox");
                 skyboxShader->use();
-                assert(GLCheckError());
-                skyboxShader->set_uniformMatrix4fv("project", m_project);
-                skyboxShader->set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+                assert(gLCheckError());
+                skyboxShader->setUniformMatrix4fv("project", m_project);
+                skyboxShader->setUniformMatrix4fv("view", Camera::main_camera.getView());
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures.at("skybox"));
                 glBindVertexArray(m_VAOs.at("skybox"));
@@ -322,14 +322,14 @@ void Engine::render()
             {
                 Program* cubeShader = m_programs.at("cube");
                 cubeShader->use();
-                cubeShader->set_uniform3f("viewPos", Camera::main_camera.get_position());
-                cubeShader->set_uniformMatrix4fv("project", m_project);
-                cubeShader->set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+                cubeShader->setUniform3f("viewPos", Camera::main_camera.getPosition());
+                cubeShader->setUniformMatrix4fv("project", m_project);
+                cubeShader->setUniformMatrix4fv("view", Camera::main_camera.getView());
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
-                cubeShader->set_uniformMatrix4fv("model", model);
-                cubeShader->set_uniformSpotLights(m_spotLights);
-                cubeShader->set_uniformFlashLight(m_flashLights);
+                cubeShader->setUniformMatrix4fv("model", model);
+                cubeShader->setUniformSpotLights(m_spotLights);
+                cubeShader->setUniformFlashLight(m_flashLights);
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilMask(0xFF);
                 Model nanosuit = m_models.at("nanosuit");
@@ -346,10 +346,10 @@ void Engine::render()
                 lightShader->use();
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
-                lightShader->set_uniform3f("lightColor", m_spotLight->color);
-                lightShader->set_uniformMatrix4fv("model", model);
-                lightShader->set_uniformMatrix4fv("project", m_project);
-                lightShader->set_uniformMatrix4fv("view", Camera::main_camera.get_view());
+                lightShader->setUniform3f("lightColor", m_spotLight->color);
+                lightShader->setUniformMatrix4fv("model", model);
+                lightShader->setUniformMatrix4fv("project", m_project);
+                lightShader->setUniformMatrix4fv("view", Camera::main_camera.getView());
                 glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
                 glStencilMask(0x00);
                 glDisable(GL_DEPTH_TEST);
@@ -363,7 +363,7 @@ void Engine::render()
                 model = glm::mat4(1.0f);
                 model = glm::translate(model, m_spotLight->position);
                 model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-                lightShader->set_uniformMatrix4fv("model", model);
+                lightShader->setUniformMatrix4fv("model", model);
                 glBindVertexArray(m_VAOs.at("cube"));
                 glDrawArrays(GL_TRIANGLES, 0, 36);
             }
@@ -377,7 +377,7 @@ void Engine::render()
                 glEnable(GL_DEPTH_TEST);
             }
 
-            assert(GLCheckError());
+            assert(gLCheckError());
 
             renderIngui();
             
@@ -480,12 +480,12 @@ void Engine::renderIngui()
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void framebuffer_size_callback(GLFWwindow* pWindow, int width, int height)
+void framebufferSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void mouse_callback(GLFWwindow* pWindow, double x, double y)
+void mouseCallback(GLFWwindow* pWindow, double x, double y)
 {
     // prohibit using mouse in debugging mode
     if (!bDebugging) {
@@ -509,7 +509,7 @@ void mouse_callback(GLFWwindow* pWindow, double x, double y)
         float sensitivity = 0.02f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
-        Camera::main_camera.update_angle(xoffset, yoffset);
+        Camera::main_camera.updateAngle(xoffset, yoffset);
     }
     else
     {
@@ -558,12 +558,12 @@ void changeMousePos(GLFWwindow* pWindow, glm::dvec2 mousePos)
     glfwSetCursorPos(pWindow, mousePos.x, mousePos.y);
 }
 
-void GLClearError()
+void gLClearError()
 {
     while (GL_NO_ERROR != glGetError());
 }
 
-bool GLCheckError()
+bool gLCheckError()
 {
     while (GLenum error = glGetError()) {
         std::cout << "[OpenGL Error] " << error << std::endl;

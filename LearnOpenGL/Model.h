@@ -25,11 +25,11 @@ public:
     void draw(Program* program);
     
 private:
-    void load_model(const std::string& path);
-    void process_node(aiNode* node, const aiScene* scene);
-    Mesh process_mesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Texture> load_material_texture(aiMaterial* mat, aiTextureType type, std::string typeName);
-    unsigned int load_texture(const std::string& file);
+    void loadModel(const std::string& path);
+    void processNode(aiNode* node, const aiScene* scene);
+    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    std::vector<Texture> loadMaterialTexture(aiMaterial* mat, aiTextureType type, std::string typeName);
+    unsigned int loadTexture(const std::string& file);
     
 private:
     /// model data

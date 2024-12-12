@@ -35,7 +35,7 @@ public:
     void draw(Program* program);
     
 private:
-    void setup_mesh();
+    void setupMesh();
     
 private:
     std::vector<Vertex> m_vertexs;

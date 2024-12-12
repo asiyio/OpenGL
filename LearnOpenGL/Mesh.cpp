@@ -10,7 +10,7 @@
 Mesh::Mesh(std::vector<Vertex> _vetexs, std::vector<unsigned int> _indices, std::vector<Texture> _texture)
     : m_vertexs(_vetexs), m_indices(_indices), m_textures(_texture)
 {
-    setup_mesh();
+    setupMesh();
 }
 
 Mesh::~Mesh()
@@ -36,7 +36,7 @@ void Mesh::draw(Program* program)
         {
             num = specIndex++;
         }
-        program->set_uniform1i("material." + m_textures[i].type + std::to_string(num), i);
+        program->setUniform1i("material." + m_textures[i].type + std::to_string(num), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
     glBindVertexArray(m_VAO);
@@ -46,7 +46,7 @@ void Mesh::draw(Program* program)
     glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::setup_mesh()
+void Mesh::setupMesh()
 {
     glGenVertexArrays(1, &m_VAO);
     glGenBuffers(1, &m_VBO);
