@@ -101,7 +101,8 @@ void Program::use()
     
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
-    if (linkStatus == GL_FALSE) {
+    if (linkStatus == GL_FALSE)
+    {
         GLint maxLength = 0;
         glGetProgramiv(m_program, GL_INFO_LOG_LENGTH, &maxLength);
 
@@ -109,13 +110,10 @@ void Program::use()
         glGetProgramInfoLog(m_program, maxLength, &maxLength, &infoLog[0]);
 
         std::cerr << "shader program linking failed:\n" << &infoLog[0] << "\n";
-    } else {
-        std::cout << "shader program linked successfully\n";
     }
     
-    if (glIsProgram(m_program)) {
-        std::cout << "shader program is valid\n";
-    } else {
+    if (!glIsProgram(m_program))
+    {
         std::cerr << "shader program is invalid\n";
     }
     
@@ -127,7 +125,7 @@ void Program::use()
         glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
 
         if (currentProgram == m_program) {
-            std::cout << "shader program is active and in use\n";
+            // std::cout << "shader program is active and in use\n";
         } else {
             std::cerr << "shader program binding failed\n";
         }

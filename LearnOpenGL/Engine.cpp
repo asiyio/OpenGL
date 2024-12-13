@@ -37,6 +37,8 @@ static glm::dvec2 g_mouseLastPos;
 static std::atomic_bool bDebugging;
 const double targetFrameTime = 1.0 / 60.0;
 
+static glm::vec3 lightPos(0.f, 0.f, -5.0f);
+
 Engine Engine::engine;
 Engine::Engine() : m_pWindow(nullptr)
 {
@@ -70,10 +72,11 @@ void Engine::start()
     glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     glEnable(GL_STENCIL_TEST);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glfwSwapInterval(0);
     
     //stbi_set_flip_vertically_on_load(true);
     
@@ -135,6 +138,7 @@ void Engine::createSceneThings()
         "light",
         "skybox",
         "frontsight",
+        "bulb",
     };
     
     for (int i = 0; i < programNames.size(); ++i)
@@ -147,8 +151,9 @@ void Engine::createSceneThings()
     
     std::vector<std::pair<std::string, std::string>> modelNamesAndPath =
     {
-        {"nanosuit", "nanosuit/nanosuit.obj"},
-        {"plane", "plane/wood.obj"},
+        //{"nanosuit", "nanosuit/nanosuit.obj"},
+        //{"plane", "plane/wood.obj"},
+        {"bulb", "bulb/bulb_body.obj"},
     };
     
     
@@ -161,7 +166,7 @@ void Engine::createSceneThings()
     m_spotLight = new SpotLight(glm::vec3(0.f, 5.0f, 2.0f));
     m_spotLights.push_back(m_spotLight);
     m_flashLight = new FlashLight(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, -1.f));
-    //m_flashLight->on = false;
+    m_flashLight->on = false;
     m_flashLights.push_back(m_flashLight);
     
     createVAOs();
@@ -285,6 +290,8 @@ void Engine::initImgui()
 #pragma mark render loop begin
 void Engine::render()
 {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     if (m_pWindow != nullptr) {
         while (!glfwWindowShouldClose(m_pWindow)) {
             
@@ -326,16 +333,39 @@ void Engine::render()
                 cubeShader->setUniformMatrix4fv("project", m_project);
                 cubeShader->setUniformMatrix4fv("view", Camera::main_camera.getView());
                 glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
+                model = glm::translate(model, glm::vec3(0.0f, -.5f, -5.0f));
                 cubeShader->setUniformMatrix4fv("model", model);
                 cubeShader->setUniformSpotLights(m_spotLights);
                 cubeShader->setUniformFlashLight(m_flashLights);
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilMask(0xFF);
-                Model nanosuit = m_models.at("nanosuit");
-                nanosuit.draw(cubeShader);
-                Model plane = m_models.at("plane");
-                plane.draw(cubeShader);
+                //Model nanosuit = m_models.at("nanosuit");
+                //nanosuit.draw(cubeShader);
+                //Model plane = m_models.at("plane");
+                //plane.draw(cubeShader);
+            }
+            
+            {
+                Program* bulbShader = m_programs.at("bulb");
+                bulbShader->use();
+                bulbShader->setUniform3f("viewPos", Camera::main_camera.getPosition());
+                bulbShader->setUniform3f("lightPos", Camera::main_camera.getPosition());
+                bulbShader->setUniformMatrix4fv("project", m_project);
+                bulbShader->setUniformMatrix4fv("view", Camera::main_camera.getView());
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(0.0f, -.5f, -5.0f));
+                bulbShader->setUniform3f("lightPos", lightPos);
+                bulbShader->setUniformMatrix4fv("model", model);
+                bulbShader->setUniformSpotLights(m_spotLights);
+                bulbShader->setUniformFlashLight(m_flashLights);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, m_textures.at("skybox"));
+                glEnable(GL_DEPTH_TEST);
+                glDepthMask(GL_FALSE);
+                Model bulb = m_models.at("bulb");
+                bulb.draw(bulbShader);
+                glDepthMask(GL_TRUE);
+                
             }
              
 
@@ -354,8 +384,8 @@ void Engine::render()
                 glStencilMask(0x00);
                 glDisable(GL_DEPTH_TEST);
 
-                Model nanosuit = m_models.at("nanosuit");
-                nanosuit.draw(lightShader);
+                //Model nanosuit = m_models.at("nanosuit");
+                //nanosuit.draw(lightShader);
                 glStencilMask(0xFF);
                 glStencilFunc(GL_ALWAYS, 0, 0xFF);
                 glEnable(GL_DEPTH_TEST);
@@ -462,6 +492,14 @@ void Engine::renderIngui()
             ImGui::SameLine();
             ImGui::SliderFloat("##spot light b", &m_spotLight->color.z, 0.0f, 1.0f, "%.2f");
             ImGui::PopItemWidth();
+        }
+        if (ImGui::CollapsingHeader("shininess light", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Text("light pos:");
+            ImGui::SameLine();
+            float pos[3] = {lightPos.x, lightPos.y, lightPos.z};
+            ImGui::DragFloat3("##shininess light pos", pos, 0.02f, -100.f, 100.f, "%.2f");
+            lightPos = glm::vec3(pos[0], pos[1], pos[2]);
         }
         ImGui::Unindent(DEFAULT_INDENT);
     }

@@ -24,6 +24,10 @@ void Mesh::draw(Program* program)
     
     unsigned int diffIndex = 1;
     unsigned int specIndex = 1;
+    unsigned int emisIndex = 1;
+    unsigned int heigIndex = 1;
+    unsigned int shinIndex = 1;
+    unsigned int opacIndex = 1;
     for (int i = 0; i < m_textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
@@ -35,6 +39,22 @@ void Mesh::draw(Program* program)
         else if (m_textures[i].type == "specular")
         {
             num = specIndex++;
+        }
+        else if (m_textures[i].type == "emissive")
+        {
+            num = emisIndex++;
+        }
+        else if (m_textures[i].type == "height")
+        {
+            num = heigIndex++;
+        }
+        else if (m_textures[i].type == "shininess")
+        {
+            num = shinIndex++;
+        }
+        else if (m_textures[i].type == "opacity")
+        {
+            num = opacIndex++;
         }
         program->setUniform1i("material." + m_textures[i].type + std::to_string(num), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
