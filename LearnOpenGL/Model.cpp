@@ -6,7 +6,7 @@
 //
 
 #include "Model.h"
-#include "System.h"
+#include "System.hpp"
 #include <stb/stb_image.h>
 
 Model::Model()

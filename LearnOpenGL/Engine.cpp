@@ -12,7 +12,7 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include "Engine.h"
-#include "System.h"
+#include "System.hpp"
 #include "Camera.h"
 #include "VerticesData.h"
 
@@ -23,6 +23,11 @@
 #define DEFAULT_RADIUS 2.f
 #define SEGMENTS 100
 
+#ifdef _WIN32
+#include <corecrt_math_defines.h>
+#endif
+
+void checkOpenGLRenderer();
 void framebufferSizeCallback(GLFWwindow* pWindow, int width, int height);
 void mouseCallback(GLFWwindow* pWindow, double x, double y);
 void processInput(GLFWwindow* pWindow, Camera* pCamera);
@@ -77,6 +82,8 @@ void Engine::start()
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glfwSwapInterval(0);
+
+    checkOpenGLRenderer();
     
     //stbi_set_flip_vertically_on_load(true);
     
@@ -98,6 +105,7 @@ void Engine::init()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwSwapInterval(0);
 }
 
 bool Engine::createWindow()
@@ -112,7 +120,7 @@ bool Engine::createWindow()
     }
     else
     {
-        System::getScreenSize(&System::nScreenWidth, &System::nScreenHeight);
+        //System::getScreenSize(&System::nScreenWidth, &System::nScreenHeight);
         m_pWindow = glfwCreateWindow(System::nScreenWidth, System::nScreenHeight, "LearnOpenGL", NULL, NULL);
     }
     
@@ -138,22 +146,22 @@ void Engine::createSceneThings()
         "light",
         "skybox",
         "frontsight",
-        "bulb",
+        //"bulb",
     };
     
     for (int i = 0; i < programNames.size(); ++i)
     {
-        std::string strVertexShader = programNames[i] + ".vs";
-        std::string strFragmentShader = programNames[i] + ".fs";
+        std::string strVertexShader = programNames[i] + ".vert";
+        std::string strFragmentShader = programNames[i] + ".frag";
         Program* program = new Program(strVertexShader, strFragmentShader);
         m_programs[programNames[i]] = program;
     }
     
     std::vector<std::pair<std::string, std::string>> modelNamesAndPath =
     {
-        //{"nanosuit", "nanosuit/nanosuit.obj"},
-        //{"plane", "plane/wood.obj"},
-        {"bulb", "bulb/bulb_body.obj"},
+        {"nanosuit", "nanosuit/nanosuit.obj"},
+        {"plane", "plane/wood.obj"},
+        //{"bulb", "bulb/bulb_body.obj"},
     };
     
     
@@ -287,15 +295,28 @@ void Engine::initImgui()
     style.Colors[ImGuiCol_FrameBgActive] = defaultColor;
 }
 
+
 #pragma mark render loop begin
 void Engine::render()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    double lastTime = 0.0;
+    int frameCount = 0;
+
     if (m_pWindow != nullptr) {
         while (!glfwWindowShouldClose(m_pWindow)) {
             
-            double startTime = glfwGetTime();
+            double currentTime = glfwGetTime();
+            double deltaTime = currentTime - lastTime;
+            frameCount++;
+
+            if (deltaTime >= 1.0) {
+                m_nFrameCount = frameCount / deltaTime;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
             
             // check input and update camera
             processInput(m_pWindow, &Camera::main_camera);
@@ -343,9 +364,14 @@ void Engine::render()
                 //nanosuit.draw(cubeShader);
                 //Model plane = m_models.at("plane");
                 //plane.draw(cubeShader);
+                Model nanosuit = m_models.at("nanosuit");
+                nanosuit.draw(cubeShader);
+                Model plane = m_models.at("plane");
+                //plane.draw(cubeShader);
             }
             
             {
+                /*
                 Program* bulbShader = m_programs.at("bulb");
                 bulbShader->use();
                 bulbShader->setUniform3f("viewPos", Camera::main_camera.getPosition());
@@ -365,7 +391,7 @@ void Engine::render()
                 Model bulb = m_models.at("bulb");
                 bulb.draw(bulbShader);
                 glDepthMask(GL_TRUE);
-                
+                */
             }
              
 
@@ -385,6 +411,8 @@ void Engine::render()
                 glDisable(GL_DEPTH_TEST);
 
                 //Model nanosuit = m_models.at("nanosuit");
+                //nanosuit.draw(lightShader);
+                Model nanosuit = m_models.at("nanosuit");
                 //nanosuit.draw(lightShader);
                 glStencilMask(0xFF);
                 glStencilFunc(GL_ALWAYS, 0, 0xFF);
@@ -413,12 +441,6 @@ void Engine::render()
             
             glfwSwapBuffers(m_pWindow);
             glfwPollEvents();
-            
-            double endTime = glfwGetTime();
-            double useTime = endTime - startTime;
-            if (useTime < m_fTargetFrameTime) {
-                //glfwWaitEventsTimeout(m_fTargetFrameTime - useTime);
-            }
         }
         
         
@@ -509,6 +531,7 @@ void Engine::renderIngui()
         ImGui::Indent(DEFAULT_INDENT);
         ImGui::Text("mouse pos: %.0f %.0f", g_mouseLastPos.x, g_mouseLastPos.y);
         ImGui::Text("view pos: %.2f %.2f %.2f", m_flashLight->position.x, m_flashLight->position.y, m_flashLight->position.z);
+        ImGui::Text("frame: %d", m_nFrameCount);
         ImGui::Unindent(DEFAULT_INDENT);
     }
     
@@ -516,6 +539,16 @@ void Engine::renderIngui()
     ImGui::End();
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void checkOpenGLRenderer() {
+    const GLubyte* vendor = glGetString(GL_VENDOR);
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version = glGetString(GL_VERSION);
+
+    std::cout << "OpenGL Vendor  : " << vendor << std::endl;
+    std::cout << "OpenGL Renderer: " << renderer << std::endl;
+    std::cout << "OpenGL Version : " << version << std::endl;
 }
 
 void framebufferSizeCallback(GLFWwindow* pWindow, int width, int height)

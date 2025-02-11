@@ -14,7 +14,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Program.h"
-#include "System.h"
+#include "System.hpp"
 
 
 Program::Program()
@@ -112,8 +112,7 @@ void Program::use()
         std::cerr << "shader program linking failed:\n" << &infoLog[0] << "\n";
     }
     
-    if (!glIsProgram(m_program))
-    {
+    if (!glIsProgram(m_program)) {
         std::cerr << "shader program is invalid\n";
     }
     
@@ -124,9 +123,7 @@ void Program::use()
         GLint currentProgram;
         glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
 
-        if (currentProgram == m_program) {
-            // std::cout << "shader program is active and in use\n";
-        } else {
+        if (currentProgram != m_program) {
             std::cerr << "shader program binding failed\n";
         }
     } else {

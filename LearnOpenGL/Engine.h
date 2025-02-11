@@ -43,6 +43,7 @@ private:
     GLFWwindow* m_pWindow;
     
     double m_fTargetFrameTime;
+    int m_nFrameCount;
     
     std::map<std::string, Program*> m_programs;
     std::map<std::string, Model> m_models;
