@@ -57,6 +57,7 @@ uniform FlashLight flash_lights[10];
 uniform int num_flash_lights;
 
 uniform Material material;
+uniform samplerCube depthMap;
 
 in vec3 fragPos;
 in vec3 normal;
@@ -66,12 +67,37 @@ uniform vec3 viewPos;
 
 out vec4 FragColor;
 
+vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);
+
+float ShadowCalculation(vec3 fPos, vec3 lPos)
+{
+    vec3 fragToLight = fPos - lPos;
+    float currentDepth = length(fragToLight);
+    float shadow = 0.0;
+    float bias = 0.05;
+    int samples = 20;
+
+    float diskRadius = 0.01;
+    for (int i = 0; i < samples; ++i) {
+        float closestDepth = texture(depthMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;
+        closestDepth *= 100.0;
+        shadow += smoothstep(0.0, bias, currentDepth - closestDepth);  // ¡û Ìæ´úÓ²ãÐÖµÅÐ¶Ï
+    }
+    shadow /= float(samples);
+
+
+    return shadow;
+}
+
 void main()
 {
-    //FragColor = vec4(color, 1.0f) * mix(texture(texture1, textCoord), texture(texture2, textCoord), 0.2);
-    //FragColor = mix(texture(texture1, textCoord), texture(texture2, textCoord), 0.2);
-    //FragColor = texture(texture1, textCoord);
-
     vec3 ambient = vec3(0.f, 0.f, 0.f);
     vec3 diffuse = vec3(0.f, 0.f, 0.f);
     vec3 specular = vec3(0.f, 0.f, 0.f);
@@ -79,13 +105,16 @@ void main()
     vec3 n = normalize(normal);
     vec3 viewDir = normalize(viewPos - fragPos);
     // ambient color
-    ambient = .0f * vec3(texture(material.diffuse1, textCoord));
+    ambient = 0.0f * vec3(texture(material.diffuse1, textCoord));
 
     // spot light effect
+    float shadow = 0.f;
     for (int i = 0; i < num_spot_lights; i++)
     {
         if (spot_lights[i].on)
+        //if (false)
         {
+            shadow = ShadowCalculation(fragPos, spot_lights[i].position);
             vec3 lightDir = normalize(spot_lights[i].position - fragPos);
             // diffuse color
             float diffusefactor = max(dot(n, lightDir), 0.f);
@@ -96,42 +125,13 @@ void main()
             vec3 _specular = vec3(texture(material.specular1, textCoord)) * specularfactor;
 
             float distance = length(spot_lights[i].position - fragPos);
-            float attenuation = 1.0 / (spot_lights[i].constant + spot_lights[i].linear * distance + spot_lights[i].quadratic * (distance * distance));
+        
+            float attenuation = (1 - shadow) *  1.0 / (spot_lights[i].constant + spot_lights[i].linear * distance + spot_lights[i].quadratic * (distance * distance));
             _diffuse *= attenuation * spot_lights[i].color;
             _specular *= attenuation * spot_lights[i].color;
-
+      
             diffuse += _diffuse;
             specular += _specular;
-        }
-    }
-
-    // flash light effect
-    for (int i = 0; i < num_flash_lights; i++)
-    {
-        if (flash_lights[i].on)
-        {
-            vec3 lightDir = normalize(flash_lights[i].position - fragPos);
-            // diffuse color
-            float diffusefactor = max(dot(n, lightDir), 0.f);
-            vec3 _diffuse = vec3(texture(material.diffuse1, textCoord)) * diffusefactor;
-            // specular color
-            vec3 reflectDir = reflect(-lightDir, n);
-            float specularfactor = pow(max(dot(viewDir, reflectDir), 0.f), 32);
-            vec3 _specular = vec3(texture(material.specular1, textCoord)) * specularfactor;
-            
-            float theta = dot(lightDir, normalize(-flash_lights[i].direction));
-            float epsilon = flash_lights[i].cutOff - flash_lights[i].outerCutOff;
-            float intensity = clamp((theta - flash_lights[i].outerCutOff) / epsilon, 0.f, 1.f);
-            _diffuse *= intensity;
-            _specular *= intensity;
-
-            float distance = length(flash_lights[i].position - fragPos);
-            float attenuation = 1.0 / (flash_lights[i].constant + flash_lights[i].linear * distance + flash_lights[i].quadratic * (distance * distance));
-            _diffuse *= attenuation * flash_lights[i].color;
-            _specular *= attenuation * flash_lights[i].color;
-
-            diffuse += _diffuse;
-            specular += _specular; 
         }
     }
 

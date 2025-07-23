@@ -3,7 +3,7 @@
 // Created by asi on 2024/12/8.
 
 #version 330 core
-layout(location = 0) in vec3 aPosition;
+layout(location = 0) in vec2 aPosition;
 
 void main()
 {
