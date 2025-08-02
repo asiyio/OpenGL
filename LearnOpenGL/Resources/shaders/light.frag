@@ -1,0 +1,14 @@
+// Light Fragment
+//
+// Created by asi on 2024/8/18.
+
+#version 410 core
+
+uniform vec3 lightColor;
+
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(lightColor, 1.0f);
+}

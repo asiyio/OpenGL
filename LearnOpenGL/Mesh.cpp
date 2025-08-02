@@ -6,11 +6,12 @@
 //
 
 #include "Mesh.h"
+#include <stb/stb_image.h>
 
 Mesh::Mesh(std::vector<Vertex> _vetexs, std::vector<unsigned int> _indices, std::vector<Texture> _texture)
     : m_vertexs(_vetexs), m_indices(_indices), m_textures(_texture)
 {
-    setupMesh();
+    m_initialized = false;
 }
 
 Mesh::~Mesh()
@@ -24,6 +25,10 @@ void Mesh::draw(Program* program)
     
     unsigned int diffIndex = 1;
     unsigned int specIndex = 1;
+    unsigned int emisIndex = 1;
+    unsigned int heigIndex = 1;
+    unsigned int shinIndex = 1;
+    unsigned int opacIndex = 1;
     for (int i = 0; i < m_textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i);
@@ -36,6 +41,22 @@ void Mesh::draw(Program* program)
         {
             num = specIndex++;
         }
+        else if (m_textures[i].type == "emissive")
+        {
+            num = emisIndex++;
+        }
+        else if (m_textures[i].type == "height")
+        {
+            num = heigIndex++;
+        }
+        else if (m_textures[i].type == "shininess")
+        {
+            num = shinIndex++;
+        }
+        else if (m_textures[i].type == "opacity")
+        {
+            num = opacIndex++;
+        }
         program->setUniform1i("material." + m_textures[i].type + std::to_string(num), i);
         glBindTexture(GL_TEXTURE_2D, m_textures[i].id);
     }
@@ -46,9 +67,20 @@ void Mesh::draw(Program* program)
     glActiveTexture(GL_TEXTURE0);
 }
 
+void Mesh::init()
+{
+    setupMesh();
+    for (int i = 0; i < m_textures.size(); i++)
+    {
+        m_textures[i].id = loadTexture(m_textures[i].path);
+    }
+    m_initialized = true;
+}
+
 void Mesh::setupMesh()
 {
     glGenVertexArrays(1, &m_VAO);
+    
     glGenBuffers(1, &m_VBO);
     glGenBuffers(1, &m_EBO);
     
@@ -70,4 +102,47 @@ void Mesh::setupMesh()
     glEnableVertexAttribArray(2);
     
     glBindVertexArray(0);
+}
+
+unsigned int Mesh::loadTexture(const std::string& file)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(file.c_str(), &width, &height, &nrComponents, 0);
+    if (data)
+    {
+        GLenum format;
+        if (nrComponents == 1)
+        {
+            format = GL_RED;
+        }
+        else if (nrComponents == 3)
+        {
+            format = GL_RGB;
+        }
+        else if (nrComponents == 4)
+        {
+            format = GL_RGBA;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else
+    {
+        std::cout << "Texture failed to load at path: " << file << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }

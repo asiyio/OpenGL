@@ -19,7 +19,7 @@ class Program
 {
 public:
     Program();
-    Program(const std::string& vertex_shader, const std::string& fragment_shader);
+    Program(const std::string& shader);
     ~Program();
     
     /// initial program
@@ -39,7 +39,8 @@ public:
     void setUniform3f(const std::string& key, const glm::vec3& value);
     void setUniform3f(const std::string& key, float x, float y, float z);
     void setUniformMatrix4fv(const std::string& key, const glm::mat4& value);
-    void setUniformSpotLights(const std::vector<SpotLight*>& spotLights);
+    void setUniformMatrix4fv(const std::string& key, const std::vector<glm::mat4>& value);
+    void setUniformSpotLights(const std::vector<PointLight*>& spotLights);
     void setUniformFlashLight(const std::vector<FlashLight*>& flashLights);
     
 private:

@@ -11,7 +11,7 @@ Camera Camera::main_camera;
 
 Camera::Camera()
 {
-    m_speed   = 0.1f;
+    m_speed   = 0.02f;
     m_pitch   = 0.0f;
     m_yaw     = -90.f;
     m_forward = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -75,17 +75,17 @@ void Camera::move(MOVE_DIRECTION dir)
     }
 }
 
-glm::mat4 Camera::getView()
+glm::mat4 Camera::view()
 {
     return m_view;
 }
 
-glm::vec3 Camera::getPosition()
+glm::vec3 Camera::pos()
 {
     return m_position;
 }
 
-glm::vec3 Camera::getForward()
+glm::vec3 Camera::forward()
 {
     return m_forward;
 }
