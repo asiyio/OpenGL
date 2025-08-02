@@ -33,9 +33,12 @@ public:
     ~Mesh();
     
     void draw(Program* program);
-    
+    void init();
+    bool isInitialized() { return m_initialized; };
+
 private:
     void setupMesh();
+    unsigned int loadTexture(const std::string& file);
     
 private:
     std::vector<Vertex> m_vertexs;
@@ -45,6 +48,8 @@ private:
     unsigned int m_VAO;
     unsigned int m_VBO;
     unsigned int m_EBO;
+
+    bool m_initialized;
 };
 
 

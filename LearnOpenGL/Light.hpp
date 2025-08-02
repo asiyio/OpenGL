@@ -9,22 +9,22 @@
 #define Light_hpp
 #include <glm/glm.hpp>
 
-struct SpotLight
+struct PointLight
 {
-    SpotLight(glm::vec3 _position, glm::vec3 _color = glm::vec3(1.f, 1.f, 1.f))
+    PointLight(glm::vec3 _position, glm::vec3 _color = glm::vec3(1.f, 1.f, 1.f))
     {
         position = _position;
         color = _color;
     }
-    
+
     bool on = true;
 
     glm::vec3 position;
     glm::vec3 color;
-
+    float intensity = 10.0f;
     float constant = 1.0f;
-    float linear = 0.09f;
-    float quadratic = 0.032f;
+    float linear = 0.01f;
+    float quadratic = 0.0005f;
 };
 
 struct FlashLight
@@ -40,7 +40,7 @@ struct FlashLight
     glm::vec3 position;
     glm::vec3 direction;
     glm::vec3 color;
-    
+
     float cutOff = glm::cos(glm::radians(12.5f));
     float outerCutOff = glm::cos(glm::radians(17.5f));
 

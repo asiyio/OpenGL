@@ -27,7 +27,7 @@
     <ClInclude Include="LearnOpenGL\Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LearnOpenGL\config.h">
+    <ClInclude Include="LearnOpenGL\Config.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LearnOpenGL\Engine.h">
@@ -139,31 +139,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LearnOpenGL\Resources\cube.frag">
+    <None Include="LearnOpenGL\Resources\shaders\cook-torrance.frag">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="LearnOpenGL\Resources\cube.vert">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\frontsight.frag">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\frontsight.geom">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\frontsight.vert">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\light.frag">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\light.vert">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\skybox.frag">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="LearnOpenGL\Resources\skybox.vert">
+    <None Include="LearnOpenGL\Resources\shaders\cook-torrance.vert">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

@@ -23,12 +23,27 @@ Program::Program()
 
 }
 
-Program::Program(const std::string& vertex_shader, const std::string& fragment_shader)
+Program::Program(const std::string& shader)
     : m_program(0)
 {
     init();
-    setVertexShader(vertex_shader);
-    setFragmentShader(fragment_shader);
+    std::string script = loadShader("shaders/" + shader + ".vert");
+    if (!script.empty())
+    {
+        setVertexShader(script);
+    }
+
+    script = loadShader("shaders/" + shader + ".geom");
+    if (!script.empty())
+    {
+        setGeometryShader(script);
+    }
+
+    script = loadShader("shaders/" + shader + ".frag");
+    if (!script.empty())
+    {
+        setFragmentShader(script);
+    }
 }
 
 Program::~Program()
@@ -43,8 +58,7 @@ void Program::init()
 
 void Program::setVertexShader(const std::string& shader)
 {
-    std::string strVertexShader = loadShader(shader);
-    unsigned int nVertexShader = compileShader(GL_VERTEX_SHADER, strVertexShader);
+    unsigned int nVertexShader = compileShader(GL_VERTEX_SHADER, shader);
     glAttachShader(m_program, nVertexShader);
     glLinkProgram(m_program);
     glDeleteShader(nVertexShader);
@@ -61,8 +75,7 @@ void Program::setVertexShader(const std::string& shader)
 
 void Program::setFragmentShader(const std::string& shader)
 {
-    std::string strFragmentShader = loadShader(shader);
-    unsigned int nFragmentShader = compileShader(GL_FRAGMENT_SHADER, strFragmentShader);
+    unsigned int nFragmentShader = compileShader(GL_FRAGMENT_SHADER, shader);
     glAttachShader(m_program, nFragmentShader);
     glLinkProgram(m_program);
     glDeleteShader(nFragmentShader);
@@ -79,8 +92,7 @@ void Program::setFragmentShader(const std::string& shader)
 
 void Program::setGeometryShader(const std::string& shader)
 {
-    std::string strGeometryShader = loadShader(shader);
-    unsigned int nGeometryShader = compileShader(GL_GEOMETRY_SHADER, strGeometryShader);
+    unsigned int nGeometryShader = compileShader(GL_GEOMETRY_SHADER, shader);
     glAttachShader(m_program, nGeometryShader);
     glLinkProgram(m_program);
     glDeleteShader(nGeometryShader);
@@ -176,7 +188,16 @@ void Program::setUniformMatrix4fv(const std::string& key, const glm::mat4& value
     }
 }
 
-void Program::setUniformSpotLights(const std::vector<SpotLight*>& spotLights)
+void Program::setUniformMatrix4fv(const std::string& key, const std::vector<glm::mat4>& value)
+{
+    GLuint location = getLocation(key);
+    if (location >= 0)
+    {
+        glUniformMatrix4fv(location, 6, GL_FALSE, glm::value_ptr(value[0]));
+    }
+}
+
+void Program::setUniformSpotLights(const std::vector<PointLight*>& spotLights)
 {
     std::string key = "";
     setUniform1i("num_spot_lights", (int)spotLights.size());

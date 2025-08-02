@@ -1,0 +1,38 @@
+{
+  "dielectric": [
+    { "name": "wood", "chinese_name": "木材", "albedo": [0.45, 0.3, 0.1], "metallic": 0.0, "roughness": 0.7, "ao": 1.0 },
+    { "name": "concrete", "chinese_name": "混凝土", "albedo": [0.5, 0.5, 0.5], "metallic": 0.0, "roughness": 0.8, "ao": 1.0 },
+    { "name": "leather", "chinese_name": "皮革", "albedo": [0.2, 0.1, 0.05], "metallic": 0.0, "roughness": 0.7, "ao": 1.0 },
+    { "name": "plastic_black", "chinese_name": "黑色塑料", "albedo": [0.05, 0.05, 0.05], "metallic": 0.0, "roughness": 0.5, "ao": 1.0 },
+    { "name": "plastic_red", "chinese_name": "红色塑料", "albedo": [0.8, 0.1, 0.1], "metallic": 0.0, "roughness": 0.5, "ao": 1.0 },
+    { "name": "ceramic", "chinese_name": "陶瓷", "albedo": [0.9, 0.9, 0.9], "metallic": 0.0, "roughness": 0.2, "ao": 1.0 },
+    { "name": "cement", "chinese_name": "水泥", "albedo": [0.4, 0.4, 0.4], "metallic": 0.0, "roughness": 0.8, "ao": 1.0 },
+    { "name": "glass_rough", "chinese_name": "粗糙玻璃", "albedo": [0.8, 0.9, 1.0], "metallic": 0.0, "roughness": 0.1, "ao": 1.0 },
+    { "name": "plastic_white", "chinese_name": "白塑料", "albedo": [0.9, 0.9, 0.9], "metallic": 0.0, "roughness": 0.4, "ao": 1.0 },
+    { "name": "wood_oak", "chinese_name": "橡木", "albedo": [0.396, 0.263, 0.129], "metallic": 0.0, "roughness": 0.7, "ao": 1.0 },
+    { "name": "wood_pine", "chinese_name": "松木", "albedo": [0.78, 0.58, 0.35], "metallic": 0.0, "roughness": 0.6, "ao": 1.0 },
+    { "name": "fabric_linen", "chinese_name": "亚麻布", "albedo": [0.82, 0.75, 0.67], "metallic": 0.0, "roughness": 0.7, "ao": 1.0 },
+    { "name": "leather_dark", "chinese_name": "深色皮革", "albedo": [0.2, 0.12, 0.08], "metallic": 0.0, "roughness": 0.6, "ao": 1.0 },
+    { "name": "ceramic_white", "chinese_name": "白瓷", "albedo": [0.95, 0.95, 0.95], "metallic": 0.0, "roughness": 0.3, "ao": 1.0 },
+    { "name": "stone_marble", "chinese_name": "大理石", "albedo": [0.8, 0.8, 0.85], "metallic": 0.0, "roughness": 0.5, "ao": 1.0 },
+    { "name": "sand", "chinese_name": "沙子", "albedo": [0.76, 0.7, 0.5], "metallic": 0.0, "roughness": 0.9, "ao": 1.0 }
+  ],
+  "metal": [
+    { "name": "gold", "chinese_name": "金", "albedo": [1.0, 0.85, 0.57], "metallic": 1.0, "roughness": 0.3, "ao": 1.0 },
+    { "name": "copper", "chinese_name": "铜", "albedo": [0.95, 0.64, 0.54], "metallic": 1.0, "roughness": 0.3, "ao": 1.0 },
+    { "name": "aluminum", "chinese_name": "铝", "albedo": [0.91, 0.92, 0.92], "metallic": 1.0, "roughness": 0.2, "ao": 1.0 },
+    { "name": "iron", "chinese_name": "铁", "albedo": [0.56, 0.57, 0.58], "metallic": 1.0, "roughness": 0.3, "ao": 1.0 },
+    { "name": "chrome", "chinese_name": "铬（镜面）", "albedo": [0.9, 0.9, 0.9], "metallic": 1.0, "roughness": 0.05, "ao": 1.0 },
+    { "name": "rusted_metal", "chinese_name": "生锈金属", "albedo": [0.5, 0.3, 0.2], "metallic": 1.0, "roughness": 0.8, "ao": 1.0 },
+    { "name": "silver", "chinese_name": "银", "albedo": [0.972, 0.96, 0.915], "metallic": 1.0, "roughness": 0.2, "ao": 1.0 },
+    { "name": "bronze", "chinese_name": "青铜", "albedo": [0.973, 0.631, 0.313], "metallic": 1.0, "roughness": 0.4, "ao": 1.0 }
+  ],
+  "special": [
+    { "name": "ice", "chinese_name": "冰", "albedo": [0.8, 0.9, 1.0], "metallic": 0.0, "roughness": 0.05, "ao": 1.0 },
+    { "name": "snow", "chinese_name": "雪", "albedo": [0.95, 0.95, 0.95], "metallic": 0.0, "roughness": 0.8, "ao": 1.0 },
+    { "name": "rubber", "chinese_name": "橡胶", "albedo": [0.02, 0.02, 0.02], "metallic": 0.0, "roughness": 0.7, "ao": 1.0 },
+    { "name": "rubber_black", "chinese_name": "黑橡胶", "albedo": [0.02, 0.02, 0.02], "metallic": 0.0, "roughness": 0.8, "ao": 1.0 },
+    { "name": "rubber_red", "chinese_name": "红橡胶", "albedo": [0.5, 0.1, 0.1], "metallic": 0.0, "roughness": 0.9, "ao": 1.0 },
+    { "name": "marble", "chinese_name": "大理石", "albedo": [0.9, 0.9, 0.9], "metallic": 0.0, "roughness": 0.3, "ao": 1.0 }
+  ]
+}

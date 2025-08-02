@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LearnOpenGL\Camera.h" />
-    <ClInclude Include="LearnOpenGL\config.h" />
+    <ClInclude Include="LearnOpenGL\Config.h" />
     <ClInclude Include="LearnOpenGL\Engine.h" />
     <ClInclude Include="LearnOpenGL\Light.hpp" />
     <ClInclude Include="LearnOpenGL\Material.hpp" />
@@ -60,15 +60,8 @@
     <ClCompile Include="LearnOpenGL\src\imgui\test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="LearnOpenGL\Resources\cube.frag" />
-    <None Include="LearnOpenGL\Resources\cube.vert" />
-    <None Include="LearnOpenGL\Resources\frontsight.frag" />
-    <None Include="LearnOpenGL\Resources\frontsight.geom" />
-    <None Include="LearnOpenGL\Resources\frontsight.vert" />
-    <None Include="LearnOpenGL\Resources\light.frag" />
-    <None Include="LearnOpenGL\Resources\light.vert" />
-    <None Include="LearnOpenGL\Resources\skybox.frag" />
-    <None Include="LearnOpenGL\Resources\skybox.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\cook-torrance.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\cook-torrance.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -128,6 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +136,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,12 +149,13 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)lib\include;$(SolutionDir)LearnOpenGL\src</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\lib-win64\</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
@@ -177,6 +173,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
