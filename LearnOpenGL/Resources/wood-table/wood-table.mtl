@@ -1,0 +1,13 @@
+# Blender 4.3.2 MTL File: 'wood-table.blend'
+# www.blender.org
+
+newmtl wooden_table
+Ka 1.000000 1.000000 1.000000
+Ks 0.489091 0.489091 0.489091
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd textures/wooden_table_basecolor_diffuse.jpg
+map_Ns textures/wooden_table_roughness.jpg
+map_Bump -bm 1.000000 textures/wooden_table_normal_opengl.jpg
