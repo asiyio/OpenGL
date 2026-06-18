@@ -5,8 +5,7 @@
 //  Created by asi on 2024/8/21.
 //
 
-#ifndef Light_hpp
-#define Light_hpp
+#pragma once
 #include <glm/glm.hpp>
 
 struct PointLight
@@ -49,4 +48,24 @@ struct FlashLight
     float linear = 0.09f;
     float quadratic = 0.032f;
 };
-#endif /* Light_hpp */
+
+struct AreaLight
+{
+    AreaLight() {};
+    AreaLight(glm::vec3 _position, glm::vec3 _color = glm::vec3(1.f, 1.f, 1.f))
+    {
+        position = _position;
+        color = _color;
+    }
+    bool on = true;
+
+    glm::vec3 position;
+    glm::vec3 rotate;
+    glm::vec3 color;
+	glm::vec3 u;
+	glm::vec3 v;
+	glm::vec3 normal;
+
+    float width = 2.0f;
+    float height = 2.0f;
+};

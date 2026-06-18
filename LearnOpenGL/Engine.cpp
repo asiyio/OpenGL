@@ -19,8 +19,13 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <thread>
+#include <random>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -37,14 +42,14 @@
 GLuint pingDepthMap, pongDepthMap;
 GLuint pingFBO, pongFBO;
 
-void framebufferSizeCallback(GLFWwindow *pWindow, int width, int height);
-void mouseCallback(GLFWwindow *pWindow, double x, double y);
-void processInput(GLFWwindow *pWindow, Camera *pCamera);
-void changeMouseDisplay(GLFWwindow *pWindow, bool bDisplay);
-void changeMousePos(GLFWwindow *pWindow, glm::dvec2 mousePos);
+void framebufferSizeCallback(GLFWwindow* pWindow, int width, int height);
+void mouseCallback(GLFWwindow* pWindow, double x, double y);
+void processInput(GLFWwindow* pWindow, Camera* pCamera);
+void changeMouseDisplay(GLFWwindow* pWindow, bool bDisplay);
+void changeMousePos(GLFWwindow* pWindow, glm::dvec2 mousePos);
 void gLClearError();
 bool gLCheckError();
-void generateCircleVertices(float *vertices, int windowWidth, int windowHeight);
+void generateCircleVertices(float* vertices, int windowWidth, int windowHeight);
 
 static glm::dvec2 g_mousePos;
 static glm::dvec2 g_mouseLastPos;
@@ -53,23 +58,70 @@ const double targetFrameTime = 1.0 / 60.0;
 
 float quadVertices[] = {
     // positions   // texCoords
-    -1.0f,
-    -1.0f,
-    0.0f,
-    0.0f,
-    1.0f,
-    -1.0f,
-    1.0f,
-    0.0f,
-    -1.0f,
-    1.0f,
-    0.0f,
-    1.0f,
-    1.0f,
-    1.0f,
-    1.0f,
-    1.0f,
+    -1.0f,  1.0f,  0.0f, 1.0f,
+    -1.0f, -1.0f,  0.0f, 0.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+
+    -1.0f,  1.0f,  0.0f, 1.0f,
+     1.0f, -1.0f,  1.0f, 0.0f,
+     1.0f,  1.0f,  1.0f, 1.0f
 };
+
+float areaLightVer[] = {
+    // positions          // texcoords (可选)
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
+};
+
+unsigned int areaLightIndices[] = {
+    0, 1, 2,
+    2, 3, 0
+};
+
+void BuildRectCorners(const AreaLight& L, glm::vec3 out[4]) {
+    glm::vec3 forward = glm::normalize(L.normal);
+    glm::vec3 upHint = glm::vec3(0, 1, 0);
+    if (fabs(glm::dot(forward, upHint)) > 0.999f) upHint = glm::vec3(1, 0, 0);
+
+    glm::vec3 right = glm::normalize(glm::cross(upHint, forward));
+    glm::vec3 up = glm::cross(forward, right);
+
+    float halfW = 0.5f * L.width;
+    float halfH = 0.5f * L.height;
+
+    out[0] = L.position + (-right * halfW) + (-up * halfH); // 左下
+    out[1] = L.position + (right * halfW) + (-up * halfH); // 右下
+    out[2] = L.position + (right * halfW) + (up * halfH); // 右上
+    out[3] = L.position + (-right * halfW) + (up * halfH); // 左上
+}
+
+GLuint g_LTC1 = 0;
+GLuint loadLTCTexture(const char* path) {
+    int w, h, n;
+    std::string filepath = System::resourcePathWithFile(path);
+    unsigned char* data = stbi_load(filepath.data(), &w, &h, &n, 4);
+    if (!data) 
+    { 
+        return 0;
+    }
+
+    GLuint tex = 0;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    // 注意：PNG 通常是 8-bit；直接以 GL_RGBA8 上传即可
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // 线性采样
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // 非归一化边界访问时避免出界
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    stbi_image_free(data);
+    return tex;
+}
 
 Engine Engine::engine;
 Engine::Engine()
@@ -84,8 +136,11 @@ Engine::~Engine()
 {
 }
 
+AreaLight areaLight;
+
 void Engine::start()
 {
+
     init();
 
     // glfw window creation
@@ -113,7 +168,7 @@ void Engine::start()
 
     // stbi_set_flip_vertically_on_load(true);
     Material::loadMaterial();
-
+    g_LTC1 = loadLTCTexture("BRDF LUT.png");
     initImgui();
     createSceneThings();
     initScene();
@@ -134,6 +189,8 @@ void Engine::init()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_SAMPLES, 4);
     glfwSwapInterval(0);
+
+    
 }
 
 bool Engine::createWindow()
@@ -141,10 +198,10 @@ bool Engine::createWindow()
     m_pWindow = nullptr;
     if (false)
     {
-        GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
+        GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
         if (primaryMonitor)
         {
-            const GLFWvidmode *mode = glfwGetVideoMode(primaryMonitor);
+            const GLFWvidmode* mode = glfwGetVideoMode(primaryMonitor);
             m_pWindow = glfwCreateWindow(mode->width, mode->height, "FullScreen Example", primaryMonitor, nullptr);
         }
     }
@@ -170,60 +227,72 @@ bool Engine::createWindow()
 void Engine::createSceneThings()
 {
     std::vector<std::string> programNames =
-        {
-            //"cube",
-            //"light",
-            //"skybox",
-            //"frontsight",
-            //"shadow",
-            //"blurshadow",
-            //"shadowoutput",
-            //"bulb",
-            //"outlining_effect",
-
-            "light", "skybox", "frontsight", "cook-torrance"};
+    {
+        "light",
+        "skybox",
+        "frontsight",
+        "cook-torrance",
+        "SSAO",
+        "SSAOBlur",
+        "SSAOLight",
+        "GBufferPass",
+        "AreaLight",
+        "LTC",
+        "SSAOTest",
+    };
 
     for (int i = 0; i < programNames.size(); ++i)
     {
-        Program *program = new Program(programNames[i]);
+        Program* program = new Program(programNames[i]);
         m_programs[programNames[i]] = program;
     }
 
     // 初始化加载模型
     std::vector<std::pair<std::string, std::string>> modelNamesAndPath =
-        {
-            //{"nanosuit", "nanosuit/nanosuit.obj"},
-            //{"plane", "plane/plane.obj"},
-            //{"bowlingball", "bowlingball/bowlingball.obj"},
-            {"pool-ball", "pool-ball/pool-ball.obj"},
-            //{"bulb", "bulb/bulb_body.obj"},
-        };
+    {
+        //{"nanosuit", "nanosuit/nanosuit.obj"},
+        {"plane", "plane/plane.obj"},
+        //{"bowlingball", "bowlingball/bowlingball.obj"},
+        {"pool-ball", "pool-ball/pool-ball.obj"},
+        //{"wood-house1", "wood-house1/wood-house.obj"},
+        {"wood-house2", "wood-house2/wood-house.obj"},
+    };
 
     for (int i = 0; i < modelNamesAndPath.size(); ++i)
     {
-        Model *model = new Model(modelNamesAndPath[i].second);
-        model->init();
+        Model* model = new Model(modelNamesAndPath[i].second);
         m_models[modelNamesAndPath[i].first] = model;
     }
 
     // 放到线程中去初始化模型
-    //     std::thread t([&]() {
-    //         for (auto& model : m_models)
-    //         {
-    //             model.second->init();
-    //         }
-    //     });
-    //     t.join();
+    std::thread t([&]() {
+        for (auto& model : m_models)
+        {
+            model.second->init();
+        }
+        });
+    t.detach();
 
-    m_pointLight = new PointLight(glm::vec3(2.42f, 1.7f, -1.5f));
+    // m_pointLight = new PointLight(glm::vec3(2.42f, 1.7f, -1.5f));
+    m_pointLight = new PointLight(glm::vec3(-1.0f, 5.0f, 0.0f));
     m_pointLights.push_back(m_pointLight);
     m_flashLight = new FlashLight(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, -1.f));
     m_flashLight->on = false;
     m_flashLights.push_back(m_flashLight);
 
+    areaLight = AreaLight(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
+    areaLight.u = glm::vec3(1.0f, 0.0f, 0.0f) * areaLight.width;
+    areaLight.v = glm::vec3(0.0f, 1.0f, 0.0f) * areaLight.height;
+
+
     createVAOs();
+    createFBOs();
     createDepthBuffer();
     createTextures();
+
+    // SSAO阶段一：生成kernel、noise
+    generateSSAOKernel();
+    generateSSAONoise();
 }
 
 void Engine::createVAOs()
@@ -234,11 +303,11 @@ void Engine::createVAOs()
     glGenBuffers(1, &CubeVBO);
     glBindBuffer(GL_ARRAY_BUFFER, CubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
     m_VAOs["cube"] = CubeVAO;
 
@@ -248,7 +317,7 @@ void Engine::createVAOs()
     glGenBuffers(1, &skyboxVBO);
     glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     m_VAOs["skybox"] = skyboxVAO;
 
@@ -260,23 +329,144 @@ void Engine::createVAOs()
     glGenBuffers(1, &frontsightVBO);
     glBindBuffer(GL_ARRAY_BUFFER, frontsightVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(circle), circle, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     m_VAOs["frontsight"] = frontsightVAO;
 
+    unsigned int quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+    m_VAOs["quad"] = quadVAO;
+
+    unsigned int areaLightVAO, areaLightVBO, areaLightEBO;
+    glGenVertexArrays(1, &areaLightVAO);
+    glGenBuffers(1, &areaLightVBO);
+    glGenBuffers(1, &areaLightEBO);
+
+    glBindVertexArray(areaLightVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, areaLightVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(areaLightVer), areaLightVer, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, areaLightEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(areaLightIndices), areaLightIndices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    m_VAOs["arealight"] = areaLightVAO;
+
     glBindVertexArray(0);
+}
+
+void Engine::createFBOs()
+{
+    unsigned int gBuffer;
+    glGenFramebuffers(1, &gBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+    m_FBOs["gBuffer"] = gBuffer;
+    // 1. 位置缓冲 (高精度存储)
+    unsigned int gPosition;
+    glGenTextures(1, &gPosition);
+    glBindTexture(GL_TEXTURE_2D, gPosition);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, System::nScreenWidth, System::nScreenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gPosition, 0);
+    m_textures["gPosition"] = gPosition;
+
+    // 2. 法线缓冲 (同样高精度)
+    unsigned int gNormal;
+    glGenTextures(1, &gNormal);
+    glBindTexture(GL_TEXTURE_2D, gNormal);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, System::nScreenWidth, System::nScreenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gNormal, 0);
+    m_textures["gNormal"] = gNormal;
+
+    // 3. 反照率 + 镜面强度
+    unsigned int gAlbedoSpec;
+    glGenTextures(1, &gAlbedoSpec);
+    glBindTexture(GL_TEXTURE_2D, gAlbedoSpec);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, System::nScreenWidth, System::nScreenHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gAlbedoSpec, 0);
+    m_textures["gAlbedoSpec"] = gAlbedoSpec;
+
+    // 4. 深度缓冲 (渲染阶段需要深度测试)
+    unsigned int rboDepth;
+    glGenRenderbuffers(1, &rboDepth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, System::nScreenWidth, System::nScreenHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    m_textures["rboDepth"] = rboDepth;
+
+    // 告诉 OpenGL 我们会同时绘制到这几个颜色附件
+    glBindFramebuffer(GL_FRAMEBUFFER, gBuffer);
+    unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
+
+    // 检查帧缓冲完整性
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        std::cout << "Framebuffer not complete!" << std::endl;
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    unsigned int ssaoBuffer;
+    glGenFramebuffers(1, &ssaoBuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, ssaoBuffer);
+    m_FBOs["ssaoBuffer"] = ssaoBuffer;
+
+    unsigned int ssaoColorBuffer;
+    glGenTextures(1, &ssaoColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, ssaoColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, System::nScreenWidth, System::nScreenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoColorBuffer, 0);
+    m_textures["ssaoColorBuffer"] = ssaoColorBuffer;
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "SSAO Framebuffer not complete!" << std::endl;
+
+    unsigned int ssaoBlurFBO;
+    glGenFramebuffers(1, &ssaoBlurFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, ssaoBlurFBO);
+    m_FBOs["ssaoBlur"] = ssaoBlurFBO;
+
+    // 创建模糊后的 AO 纹理
+    unsigned int ssaoBlurTex;
+    glGenTextures(1, &ssaoBlurTex);
+    glBindTexture(GL_TEXTURE_2D, ssaoBlurTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, System::nScreenWidth, System::nScreenHeight, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ssaoBlurTex, 0);
+    m_textures["ssaoBlurTex"] = ssaoBlurTex;
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cerr << "SSAO Blur FBO not complete!" << std::endl;
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void Engine::createTextures()
 {
     unsigned int cubeMap;
-    std::vector<std::string> textures_faces = {"right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg"};
+    std::vector<std::string> textures_faces = { "right.jpg", "left.jpg", "top.jpg", "bottom.jpg", "front.jpg", "back.jpg" };
     {
         // load cubemaps
         glGenTextures(1, &cubeMap);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);
         int width, height, nrChannels;
-        unsigned char *data;
+        unsigned char* data;
         for (unsigned int i = 0; i < textures_faces.size(); i++)
         {
             std::string filepath = System::resourcePathWithFile("skybox/" + textures_faces[i]);
@@ -299,7 +489,7 @@ void Engine::createTextures()
 void Engine::initScene()
 {
     m_project = glm::perspective(glm::radians(45.f), (float)System::nScreenWidth / (float)System::nScreenHeight, 0.1f, 500.f);
-    Camera::main_camera.init(glm::vec3(11.f, 3.2f, 10.5f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
+    Camera::main_camera.init(glm::vec3(0.f, 0.f, 5.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f));
     Camera::main_camera.updateAngle(0.f, 0.f);
 
     changeMouseDisplay(m_pWindow, false);
@@ -312,7 +502,7 @@ void Engine::initImgui()
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
     ImGui_ImplOpenGL3_Init("#version 410");
-    ImGuiIO &io = ImGui::GetIO();
+    ImGuiIO& io = ImGui::GetIO();
     ImFontConfig font_config;
     font_config.OversampleH = 3;
     font_config.OversampleV = 3;
@@ -321,7 +511,7 @@ void Engine::initImgui()
     io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.FontGlobalScale = 1.2f;
 
-    ImGuiStyle &style = ImGui::GetStyle();
+    ImGuiStyle& style = ImGui::GetStyle();
     ImVec4 defaultColor = ImVec4(.2f, .2f, .2f, 1.f);
     style.GrabMinSize = 10.f;
     style.GrabRounding = DEFAULT_RADIUS;
@@ -340,6 +530,63 @@ void Engine::initImgui()
     style.Colors[ImGuiCol_FrameBgActive] = defaultColor;
 }
 
+float Engine::randf()
+{
+    static std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+    static std::default_random_engine engine;
+    return dist(engine);
+}
+
+void Engine::generateSSAOKernel(unsigned int kernelSize /*= 64*/)
+{
+    m_kernel.clear();
+    m_kernel.reserve(kernelSize);
+    for (unsigned int i = 0; i < kernelSize; ++i) {
+        // 在单位球内取一个随机向量，然后保证 z >= 0（半球）
+        glm::vec3 sample(
+            randf() * 2.0f - 1.0f,
+            randf() * 2.0f - 1.0f,
+            randf()
+        );
+        sample = glm::normalize(sample);
+        sample *= randf(); // 随机半径 (0..1)
+
+        // scale: 越靠近中心的采样点越密集
+        float scale = float(i) / float(kernelSize);
+
+        // 非线性插值 (靠近中心更多样本)
+        scale = glm::mix(0.1f, 1.0f, scale * scale);
+        sample *= scale;
+
+        m_kernel.push_back(sample);
+    }
+}
+
+void Engine::generateSSAONoise(unsigned int noiseSize /*= 16*/)
+{
+    // 把 noise 上传为 4x4 RGBA16F texture，之后在 SSAO shader 中用 TexCoords * noiseScale 去采样。
+    std::vector<glm::vec3> noise;
+    noise.reserve(noiseSize);
+    for (unsigned int i = 0; i < noiseSize; ++i) {
+        glm::vec3 n(
+            randf() * 2.0f - 1.0f,
+            randf() * 2.0f - 1.0f,
+            0.0f
+        ); // z = 0，在切线平面内的随机旋转向量
+        noise.push_back(glm::normalize(n));
+    }
+
+    unsigned int noiseTexture;
+    glGenTextures(1, &noiseTexture);
+    glBindTexture(GL_TEXTURE_2D, noiseTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, 4, 4, 0, GL_RGB, GL_FLOAT, noise.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    m_textures["noise"] = noiseTexture;
+}
+
 #pragma region Render
 void Engine::renderLoop()
 {
@@ -348,12 +595,6 @@ void Engine::renderLoop()
 
     double lastTime = 0.0;
     int fCount = 0;
-
-    // 设置模型位置
-    // Model* nanosuit = m_models.at("nanosuit");
-    // nanosuit->setPosition(glm::vec3(0.f, 5.f, -5.0f));
-
-    // Model* plane = m_models.at("plane");
 
     if (m_pWindow != nullptr)
     {
@@ -409,7 +650,7 @@ void Engine::createDepthBuffer()
     for (GLuint i = 0; i < 6; ++i)
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
-                     DEPTHBUFFERWIDTH, DEPTHBUFFERHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+            DEPTHBUFFERWIDTH, DEPTHBUFFERHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -421,7 +662,7 @@ void Engine::createDepthBuffer()
     for (GLuint i = 0; i < 6; ++i)
     {
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT,
-                     DEPTHBUFFERWIDTH, DEPTHBUFFERHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+            DEPTHBUFFERWIDTH, DEPTHBUFFERHEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     }
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -455,7 +696,7 @@ void Engine::renderDepthBuffer()
         glBindFramebuffer(GL_FRAMEBUFFER, pingFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        Program *shadowShader = m_programs.at("shadow");
+        Program* shadowShader = m_programs.at("shadow");
         shadowShader->use();
         shadowShader->setUniform3f("lightPos", lightPos);
         shadowShader->setUniform1f("far_plane", farPlane);
@@ -492,7 +733,7 @@ void Engine::renderDepthBuffer()
 
         glActiveTexture(GL_TEXTURE11);
         glBindTexture(GL_TEXTURE_CUBE_MAP, pingDepthMap);
-        Program *blurshadowShader = m_programs.at("blurshadow");
+        Program* blurshadowShader = m_programs.at("blurshadow");
         blurshadowShader->use();
         blurshadowShader->setUniform1i("sourceDepthMap", 11);
 
@@ -503,9 +744,9 @@ void Engine::renderDepthBuffer()
         glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void *)(2 * sizeof(float)));
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
         for (int i = 0; i < 6; ++i)
         {
@@ -524,13 +765,23 @@ void Engine::renderDepthBuffer()
 
 void Engine::renderScreen()
 {
+    // SSAO 阶段二：G-buffer渲染
+    renderSSAOGBuffer();
+
+    // SSAO 阶段三：SSAO渲染
+    renderScreenSpaceAmbientOcclusion();
+
+    // SSAO 阶段四：SSAO Blur渲染
+    renderSSAOBlur();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, System::nScreenWidth, System::nScreenHeight);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     if (renderSkyBox)
     {
         glDepthFunc(GL_LEQUAL);
-        Program *skyboxShader = m_programs.at("skybox");
+        Program* skyboxShader = m_programs.at("skybox");
         skyboxShader->use();
         skyboxShader->setUniformMatrix4fv("project", m_project);
         skyboxShader->setUniformMatrix4fv("view", Camera::main_camera.view());
@@ -546,39 +797,110 @@ void Engine::renderScreen()
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glEnable(GL_DEPTH_TEST);
 
-    // 渲染模型
-    renderCookTorrancePBR();
+        // 渲染模型
+        renderCookTorrancePBR();
 
-    if (m_pointLight->on)
+    // SSAO 阶段五：SSAO Light渲染
+    //renderSSAOLight();
+
+    // 绘制模型
     {
-        // draw light and light cube
-        Program *lightShader = m_programs.at("light");
-        lightShader->use();
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
-        lightShader->setUniform3f("lightColor", m_pointLight->color * m_pointLight->intensity);
-        lightShader->setUniformMatrix4fv("model", model);
-        lightShader->setUniformMatrix4fv("project", m_project);
-        lightShader->setUniformMatrix4fv("view", Camera::main_camera.view());
+        glm::vec3 rectCorners[4];
+        BuildRectCorners(areaLight, rectCorners);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, m_pointLight->position);
-        model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
-        lightShader->setUniformMatrix4fv("model", model);
-        glBindVertexArray(m_VAOs.at("cube"));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        Program* light = m_programs.at("LTC");
+        light->use();
+
+        // 按照宽高缩放
+        light->setUniform3f("viewPos", Camera::main_camera.pos());
+        light->setUniform3f("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        light->setUniform1f("roughness", Material::cCT_PBR.roughness);
+        light->setUniform1f("metallic", Material::cCT_PBR.metallic);
+
+        for (int i = 0; i < rectCorners->length(); ++i)
+        {
+            light->setUniform3f("rectCorners[" + std::to_string(i) + "]", rectCorners[i]);
+        }
+
+//         Model* ball = m_models.at("pool-ball");
+//         if (ball->loadFinished())
+//         {
+//             glm::mat4 model = glm::translate(glm::mat4(1.0f), ball->getPosition());
+// 
+//             // vertex attributes
+//             light->setUniformMatrix4fv("project", m_project);
+//             light->setUniformMatrix4fv("view", Camera::main_camera.view());
+//             light->setUniformMatrix4fv("model", model);
+//             ball->draw(light);
+//         }
     }
 
+    // 绘制面光源
+    {
+        gLClearError();
+        Program* light = m_programs.at("AreaLight");
+        light->use();
+
+        glm::mat4 model = glm::mat4(1.0f);
+
+        // 平移到光源位置
+		glm::vec3 u = glm::vec3(1, 0, 0) * areaLight.width;
+		glm::vec3 v = glm::vec3(0, 1, 0) * areaLight.height;
+        model = glm::translate(model, areaLight.position);
+
+        // 绕 X/Y/Z 旋转
+        model = glm::rotate(model, glm::radians(static_cast<float>(areaLight.rotate.x)), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(static_cast<float>(areaLight.rotate.y)), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(static_cast<float>(areaLight.rotate.z)), glm::vec3(0.0f, 0.0f, 1.0f));
+        areaLight.u = glm::vec3(model * glm::vec4(u, 0.0f));
+        areaLight.v = glm::vec3(model * glm::vec4(v, 0.0f));
+        areaLight.normal = glm::normalize(glm::cross(areaLight.u, areaLight.v));
+
+        // 按照宽高缩放
+        model = glm::scale(model, glm::vec3(areaLight.width, areaLight.height, 1.0f));
+        light->setUniformMatrix4fv("project", m_project);
+        light->setUniformMatrix4fv("view", Camera::main_camera.view());
+        light->setUniformMatrix4fv("model", model);
+        light->setUniform3f("lightDir", areaLight.normal);
+
+        glBindVertexArray(m_VAOs.at("arealight"));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+        assert(gLCheckError());
+    }
+
+    //renderSSAOTest();
+
+    //     if (m_pointLight->on)
     //     {
-    //         glDisable(GL_DEPTH_TEST);
-    //         Program* frontsightShader = m_programs.at("frontsight");
-    //         frontsightShader->use();
-    //         glBindVertexArray(m_VAOs.at("frontsight"));
-    //         glDrawArrays(GL_TRIANGLE_FAN, 0, SEGMENTS + 2);
+    //         // draw light and light cube
+    //         Program* lightShader = m_programs.at("light");
+    //         lightShader->use();
+    //         glm::mat4 model = glm::mat4(1.0f);
+    //         model = glm::translate(model, glm::vec3(0.0f, -.5f, -10.0f));
+    //         lightShader->setUniform3f("lightColor", m_pointLight->color * m_pointLight->intensity);
+    //         lightShader->setUniformMatrix4fv("model", model);
+    //         lightShader->setUniformMatrix4fv("project", m_project);
+    //         lightShader->setUniformMatrix4fv("view", Camera::main_camera.view());
+    // 
+    //         model = glm::mat4(1.0f);
+    //         model = glm::translate(model, m_pointLight->position);
+    //         model = glm::scale(model, glm::vec3(0.05f, 0.05f, 0.05f));
+    //         lightShader->setUniformMatrix4fv("model", model);
+    //         glBindVertexArray(m_VAOs.at("cube"));
+    //         glDrawArrays(GL_TRIANGLES, 0, 36);
     //         glBindVertexArray(0);
-    //         glEnable(GL_DEPTH_TEST);
     //     }
+
+        //     {
+        //         glDisable(GL_DEPTH_TEST);
+        //         Program* frontsightShader = m_programs.at("frontsight");
+        //         frontsightShader->use();
+        //         glBindVertexArray(m_VAOs.at("frontsight"));
+        //         glDrawArrays(GL_TRIANGLE_FAN, 0, SEGMENTS + 2);
+        //         glBindVertexArray(0);
+        //         glEnable(GL_DEPTH_TEST);
+        //     }
 }
 
 void Engine::renderIngui()
@@ -597,7 +919,7 @@ void Engine::renderIngui()
         changeMouseDisplay(m_pWindow, false);
         changeMousePos(m_pWindow, g_mousePos);
 
-        ImGuiIO &io = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO();
         io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
         io.MouseDown[0] = io.MouseDown[1] = io.MouseDown[2] = false;
         ImGui::SetWindowFocus();
@@ -609,7 +931,7 @@ void Engine::renderIngui()
         ImGui::SameLine();
         ImGui::Checkbox("##enable cook-torrance PBR", &renderCTPBR);
         std::vector<std::string> materialNames;
-        for (const auto &material : Material::materials)
+        for (const auto& material : Material::materials)
         {
             materialNames.push_back(material.name);
         }
@@ -664,6 +986,8 @@ void Engine::renderIngui()
         ImGui::Text("ao:");
         ImGui::SameLine();
         ImGui::SliderFloat("##ao", &Material::cCT_PBR.ao, 0.1f, 1.f, "%.2f");
+        ImGui::Text("radius:");
+        ImGui::SliderFloat("##radius", &ssaoRadius, 0.1f, 2.0f, "%.2f");
         ImGui::PopItemWidth();
     }
 
@@ -686,11 +1010,11 @@ void Engine::renderIngui()
             ImGui::PopItemWidth();
         }
 
-        if (ImGui::CollapsingHeader("point light 1", ImGuiTreeNodeFlags_DefaultOpen))
+        if (ImGui::CollapsingHeader("point light 1"))
         {
             ImGui::Text("light pos:");
             ImGui::SameLine();
-            float pos[3] = {m_pointLight->position.x, m_pointLight->position.y, m_pointLight->position.z};
+            float pos[3] = { m_pointLight->position.x, m_pointLight->position.y, m_pointLight->position.z };
             ImGui::DragFloat3("##light pos", pos, 0.02f, -100.f, 100.f, "%.2f");
             m_pointLight->position = glm::vec3(pos[0], pos[1], pos[2]);
             ImGui::Checkbox("##enable point light", &m_pointLight->on);
@@ -715,6 +1039,22 @@ void Engine::renderIngui()
             };
             ImGui::PopItemWidth();
         }
+
+        if (ImGui::CollapsingHeader("area light 1", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Text("light pos:");
+            ImGui::SameLine();
+            float pos[3] = { areaLight.position.x, areaLight.position.y, areaLight.position.z };
+            ImGui::DragFloat3("##area light pos", pos, 0.02f, -100.f, 100.f, "%.2f");
+            areaLight.position = glm::vec3(pos[0], pos[1], pos[2]);
+
+            ImGui::Text("light rotate:");
+            ImGui::SameLine();
+            ImGui::SliderFloat("area light rotate x", &areaLight.rotate.x, 0.0f, 360.0f);
+            ImGui::SliderFloat("area light rotate y", &areaLight.rotate.y, 0.0f, 360.0f);
+            ImGui::SliderFloat("area light rotate z", &areaLight.rotate.z, 0.0f, 360.0f);
+            
+        }
         ImGui::Unindent(DEFAULT_INDENT);
     }
 
@@ -738,10 +1078,11 @@ void Engine::renderCookTorrancePBR()
     gLClearError();
     if (renderCTPBR)
     {
-        Program *ct = m_programs.at("cook-torrance");
+        Program* ct = m_programs.at("cook-torrance");
         ct->use();
 
-        Model *ball = m_models.at("pool-ball");
+        //Model* ball = m_models.at("pool-ball");
+        Model* ball = m_models.at("wood-house2");
         if (ball->loadFinished())
         {
             glm::mat4 model = glm::translate(glm::mat4(1.0f), ball->getPosition());
@@ -766,14 +1107,210 @@ void Engine::renderCookTorrancePBR()
     assert(gLCheckError());
 }
 
+void Engine::renderSSAOGBuffer()
+{
+    gLClearError();
+    if (renderSSAO)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs.at("gBuffer"));
+        glViewport(0, 0, System::nScreenWidth, System::nScreenHeight);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "GBuffer framebuffer is not complete!" << std::endl;
+        }
+
+        Program* pass = m_programs.at("GBufferPass");
+        pass->use();
+
+        Model* house = m_models.at("wood-house2");
+        if (house->loadFinished())
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), house->getPosition());
+            pass->setUniformMatrix4fv("project", m_project);
+            pass->setUniformMatrix4fv("view", Camera::main_camera.view());
+            pass->setUniformMatrix4fv("model", model);
+            house->draw(pass);
+        }
+
+        Model* plane = m_models.at("plane");
+        if (plane->loadFinished())
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), plane->getPosition());
+            pass->setUniformMatrix4fv("project", m_project);
+            pass->setUniformMatrix4fv("view", Camera::main_camera.view());
+            pass->setUniformMatrix4fv("model", model);
+            plane->draw(pass);
+        }
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    assert(gLCheckError());
+}
+
+void Engine::renderScreenSpaceAmbientOcclusion()
+{
+    gLClearError();
+    if (renderSSAO)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs.at("ssaoBuffer"));
+        glViewport(0, 0, System::nScreenWidth, System::nScreenHeight);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glDisable(GL_DEPTH_TEST);
+
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            std::cerr << "GBuffer framebuffer is not complete!" << std::endl;
+        }
+
+        Program* ssao = m_programs.at("SSAO");
+        ssao->use();
+
+        // 绑定kernel采样内核
+        for (size_t i = 0; i < m_kernel.size(); ++i) {
+            ssao->setUniform3fv("kernel[" + std::to_string(i) + "]", m_kernel[i]);
+        }
+
+        // 绑定G-buffer和SSAO纹理
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("gPosition"));
+        ssao->setUniform1i("gPosition", 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("gNormal"));
+        ssao->setUniform1i("gNormal", 1);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("gAlbedoSpec"));
+        ssao->setUniform1i("gAlbedoSpec", 2);
+        ssao->setUniform1i("ssao", 3);
+
+        ssao->setUniformMatrix4fv("project", m_project);
+        ssao->setUniform1f("radius", ssaoRadius);
+        ssao->setUniform1f("bias", 0.025f);
+        ssao->setUniform2f("noiseScale", glm::vec2(System::nScreenWidth / 4.0, System::nScreenHeight / 4.0));
+
+        renderQuad();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    assert(gLCheckError());
+}
+
+void Engine::renderSSAOBlur()
+{
+    gLClearError();
+    if (renderSSAO)
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs.at("ssaoBlur"));
+        glViewport(0, 0, System::nScreenWidth, System::nScreenHeight);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        Program* ssaoBlur = m_programs.at("SSAOBlur");
+        ssaoBlur->use();
+
+        // 绑定G-buffer和SSAO纹理
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("ssaoColorBuffer"));
+        ssaoBlur->setUniform1i("ssaoTexture", 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("gPosition"));
+        ssaoBlur->setUniform1i("gPosition", 1);
+        ssaoBlur->setUniform2f("texelSize", 1.0f / glm::vec2(System::nScreenWidth, System::nScreenHeight));
+        ssaoBlur->setUniform1i("horizontal", true);
+        renderQuad();
+
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("ssaoColorBuffer")); // 作为输入
+        ssaoBlur->setUniform1i("ssaoTexture", 0);
+        ssaoBlur->setUniform1i("horizontal", false);
+        renderQuad();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    assert(gLCheckError());
+}
+
+void Engine::renderSSAOLight()
+{
+    gLClearError();
+    if (renderSSAO)
+    {
+        Program* ssaolight = m_programs.at("SSAOLight");
+        ssaolight->use();
+
+        // fragment attributes
+        ssaolight->setUniform3f("pointLight.position", m_pointLight->position);
+        ssaolight->setUniform3f("pointLight.color", m_pointLight->color);
+        ssaolight->setUniform1f("pointLight.intensity", m_pointLight->intensity);
+        ssaolight->setUniform3f("viewPos", Camera::main_camera.pos());
+        ssaolight->setUniform3f("albedo", Material::cCT_PBR.albedo);
+        ssaolight->setUniform1f("metallic", Material::cCT_PBR.metallic);
+        ssaolight->setUniform1f("roughness", Material::cCT_PBR.roughness);
+        ssaolight->setUniform1f("ao", Material::cCT_PBR.ao);
+        ssaolight->setUniform2f("screenSize", glm::vec2(System::nScreenWidth, System::nScreenHeight));
+
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("ssaoBlurTex"));
+        ssaolight->setUniform1i("ssaoTexture", 10);
+
+        Model* house = m_models.at("wood-house2");
+        if (house->loadFinished())
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), house->getPosition());
+
+            // vertex attributes
+            ssaolight->setUniformMatrix4fv("project", m_project);
+            ssaolight->setUniformMatrix4fv("view", Camera::main_camera.view());
+            ssaolight->setUniformMatrix4fv("model", model);
+            house->draw(ssaolight);
+        }
+
+        Model* plane = m_models.at("plane");
+        if (plane->loadFinished())
+        {
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), plane->getPosition());
+            ssaolight->setUniformMatrix4fv("project", m_project);
+            ssaolight->setUniformMatrix4fv("view", Camera::main_camera.view());
+            ssaolight->setUniformMatrix4fv("model", model);
+            plane->draw(ssaolight);
+        }
+    }
+    assert(gLCheckError());
+}
+
+void Engine::renderQuad()
+{
+    glBindVertexArray(m_VAOs.at("quad"));
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+void Engine::renderSSAOTest()
+{
+    gLClearError();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, System::nScreenWidth, System::nScreenHeight);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (renderSSAO)
+    {
+        Program* ssaoTest = m_programs.at("SSAOTest");
+        ssaoTest->use();
+
+        glActiveTexture(GL_TEXTURE10);
+        glBindTexture(GL_TEXTURE_2D, m_textures.at("ssaoBlurTex"));
+        ssaoTest->setUniform1i("ssaoTexture", 10);
+
+        renderQuad();
+    }
+    assert(gLCheckError());
+}
+
 #pragma endregion
 
-void framebufferSizeCallback(GLFWwindow *pWindow, int width, int height)
+void framebufferSizeCallback(GLFWwindow* pWindow, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-void mouseCallback(GLFWwindow *pWindow, double x, double y)
+void mouseCallback(GLFWwindow* pWindow, double x, double y)
 {
     // prohibit using mouse in debugging mode
     if (!bDebugging)
@@ -804,12 +1341,12 @@ void mouseCallback(GLFWwindow *pWindow, double x, double y)
     else
     {
         g_mouseLastPos = glm::vec2(x, y);
-        ImGuiIO &io = ImGui::GetIO();
+        ImGuiIO& io = ImGui::GetIO();
         io.MousePos = ImVec2((float)x, (float)y);
     }
 }
 
-void processInput(GLFWwindow *pWindow, Camera *pCamera)
+void processInput(GLFWwindow* pWindow, Camera* pCamera)
 {
     if (nullptr == pWindow)
         return;
@@ -846,14 +1383,14 @@ void processInput(GLFWwindow *pWindow, Camera *pCamera)
     }
 }
 
-void changeMouseDisplay(GLFWwindow *pWindow, bool bDisplay)
+void changeMouseDisplay(GLFWwindow* pWindow, bool bDisplay)
 {
     if (nullptr == pWindow)
         return;
     glfwSetInputMode(pWindow, GLFW_CURSOR, bDisplay ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 }
 
-void changeMousePos(GLFWwindow *pWindow, glm::dvec2 mousePos)
+void changeMousePos(GLFWwindow* pWindow, glm::dvec2 mousePos)
 {
     if (nullptr == pWindow)
         return;
@@ -875,7 +1412,7 @@ bool gLCheckError()
     return true;
 }
 
-void generateCircleVertices(float *vertices, int width, int height)
+void generateCircleVertices(float* vertices, int width, int height)
 {
     const float radius = 0.002f;
     vertices[0] = 0.f;

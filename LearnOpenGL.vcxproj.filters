@@ -22,6 +22,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{7d83701d-d12f-4279-aa60-bb7565dd460b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="资源文件\SSAO">
+      <UniqueIdentifier>{7a81e22b-dca3-46a8-910c-ef3611a8831d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LearnOpenGL\Camera.h">
@@ -143,6 +146,51 @@
       <Filter>资源文件</Filter>
     </None>
     <None Include="LearnOpenGL\Resources\shaders\cook-torrance.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\GBufferPass.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\GBufferPass.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAO.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAO.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAOBlur.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAOBlur.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAOLight.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAOLight.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAOTest.frag">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\SSAOTest.vert">
+      <Filter>资源文件\SSAO</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\AreaLight.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\AreaLight.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\LTC.vert">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\LTC.frag">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="LearnOpenGL\Resources\shaders\AreaLight.geom">
       <Filter>资源文件</Filter>
     </None>
   </ItemGroup>

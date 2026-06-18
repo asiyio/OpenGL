@@ -60,8 +60,23 @@
     <ClCompile Include="LearnOpenGL\src\imgui\test.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="LearnOpenGL\Resources\shaders\AreaLight.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\AreaLight.geom" />
+    <None Include="LearnOpenGL\Resources\shaders\AreaLight.vert" />
     <None Include="LearnOpenGL\Resources\shaders\cook-torrance.frag" />
     <None Include="LearnOpenGL\Resources\shaders\cook-torrance.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\GBufferPass.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\GBufferPass.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\LTC.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\LTC.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAO.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAO.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAOBlur.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAOBlur.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAOLight.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAOLight.vert" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAOTest.frag" />
+    <None Include="LearnOpenGL\Resources\shaders\SSAOTest.vert" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

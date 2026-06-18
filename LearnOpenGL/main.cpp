@@ -6,7 +6,6 @@
 //
 
 #ifdef _WIN32
-#include <Windows.h>
 #include "Engine.h"
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) 
 #else

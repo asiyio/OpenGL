@@ -1,4 +1,4 @@
-//
+ï»¿//
 //  Engine.h
 //  LearnOpenGL
 //
@@ -8,67 +8,87 @@
 #ifndef Engine_h
 #define Engine_h
 
+#include <windows.h>
+#include <stdio.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <vector>
 #include <map>
+#include <vector>
 
+#include "Light.hpp"
 #include "Model.h"
 #include "Program.h"
-#include "Light.hpp"
 
 class Engine
 {
 public:
     void start();
-    
+
 private:
     Engine();
     ~Engine();
-    
+
     void init();
     bool createWindow();
     void createSceneThings();
     void createVAOs();
+    void createFBOs();
     void createTextures();
     void initScene();
     void initImgui();
 
-    // äÖÈ¾Ö÷Ñ­»·
+    // ç”ŸæˆSSAO kernelå‘é‡
+    float randf();
+    void generateSSAOKernel(unsigned int kernelSize = 64);
+    // ç”ŸæˆSSAO noiseè´´å›¾
+    void generateSSAONoise(unsigned int noiseSize = 16);
+
+    // æ¸²æŸ“ä¸»å¾ªç¯
     void renderLoop();
 
-    // ´´½¨²¢³õÊ¼»¯Éî¶ÈÌùÍ¼
+    // åˆ›å»ºå¹¶åˆå§‹åŒ–æ·±åº¦è´´å›¾
     void createDepthBuffer();
 
-    // äÖÈ¾Éî¶ÈÌùÍ¼
+    // æ¸²æŸ“æ·±åº¦è´´å›¾
     void renderDepthBuffer();
 
-    // äÖÈ¾³¡¾°
+    // æ¸²æŸ“åœºæ™¯
     void renderScreen();
 
-    // äÖÈ¾imgui²Ëµ¥
+    // æ¸²æŸ“imguièœå•
     void renderIngui();
 
-    // äÖÈ¾cook-torrance PBR²ÄÖÊ
+    // æ¸²æŸ“cook-torrance PBRæè´¨
     void renderCookTorrancePBR();
-    
+
+    // æ¸²æŸ“SSAO
+    void renderSSAOGBuffer();
+    void renderScreenSpaceAmbientOcclusion();
+    void renderSSAOBlur();
+    void renderSSAOLight();
+    void renderQuad();
+    void renderSSAOTest();
+
 public:
     static Engine engine;
-    
+
 private:
     GLFWwindow* m_pWindow;
-    
+
     std::map<std::string, Program*> m_programs;
     std::map<std::string, Model*> m_models;
     std::map<std::string, GLuint> m_VAOs;
+    std::map<std::string, GLuint> m_FBOs;
     std::map<std::string, GLuint> m_textures;
-    
+
     std::vector<PointLight*> m_pointLights;
     std::vector<FlashLight*> m_flashLights;
-    
+    std::vector<glm::vec3> m_kernel;
+
     PointLight* m_pointLight;
     FlashLight* m_flashLight;
-    
+
     glm::mat4 m_project;
 };
 

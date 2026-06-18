@@ -62,7 +62,7 @@ void Program::setVertexShader(const std::string& shader)
     glAttachShader(m_program, nVertexShader);
     glLinkProgram(m_program);
     glDeleteShader(nVertexShader);
-    
+
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
     if (linkStatus != GL_TRUE)
@@ -79,7 +79,7 @@ void Program::setFragmentShader(const std::string& shader)
     glAttachShader(m_program, nFragmentShader);
     glLinkProgram(m_program);
     glDeleteShader(nFragmentShader);
-    
+
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
     if (linkStatus != GL_TRUE)
@@ -96,7 +96,7 @@ void Program::setGeometryShader(const std::string& shader)
     glAttachShader(m_program, nGeometryShader);
     glLinkProgram(m_program);
     glDeleteShader(nGeometryShader);
-    
+
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
     if (linkStatus != GL_TRUE)
@@ -110,7 +110,7 @@ void Program::setGeometryShader(const std::string& shader)
 void Program::use()
 {
     glLinkProgram(m_program);
-    
+
     GLint linkStatus;
     glGetProgramiv(m_program, GL_LINK_STATUS, &linkStatus);
     if (linkStatus == GL_FALSE)
@@ -123,13 +123,13 @@ void Program::use()
 
         std::cerr << "shader program linking failed:\n" << &infoLog[0] << "\n";
     }
-    
+
     if (!glIsProgram(m_program)) {
         std::cerr << "shader program is invalid\n";
     }
-    
+
     glUseProgram(m_program);
-    
+
     GLenum error = glGetError();
     if (error == GL_NO_ERROR) {
         GLint currentProgram;
@@ -138,7 +138,8 @@ void Program::use()
         if (currentProgram != m_program) {
             std::cerr << "shader program binding failed\n";
         }
-    } else {
+    }
+    else {
         std::cerr << "glUseProgram failed with error: " << error << "\n";
     }
 }
@@ -161,6 +162,15 @@ void Program::setUniform1f(const std::string& key, float value)
     }
 }
 
+void Program::setUniform2f(const std::string& key, const glm::vec2& value)
+{
+    GLuint location = getLocation(key);
+    if (location >= 0)
+    {
+        glUniform2f(location, value.x, value.y);
+    }
+}
+
 void Program::setUniform3f(const std::string& key, const glm::vec3& value)
 {
     GLuint location = getLocation(key);
@@ -176,6 +186,15 @@ void Program::setUniform3f(const std::string& key, float x, float y, float z)
     if (location >= 0)
     {
         glUniform3f(location, x, y, z);
+    }
+}
+
+void Program::setUniform3fv(const std::string& key, const glm::vec3& value)
+{
+    GLuint location = getLocation(key);
+    if (location >= 0)
+    {
+        glUniform3fv(location, 1, glm::value_ptr(value));
     }
 }
 
@@ -204,19 +223,19 @@ void Program::setUniformSpotLights(const std::vector<PointLight*>& spotLights)
     for (int i = 0; i < spotLights.size(); i++) {
         key = "spot_lights[" + std::to_string(i) + "].position";
         setUniform3f(key, spotLights[i]->position);
-        
+
         key = "spot_lights[" + std::to_string(i) + "].color";
         setUniform3f(key, spotLights[i]->color);
-        
+
         key = "spot_lights[" + std::to_string(i) + "].constant";
         setUniform1f(key, spotLights[i]->constant);
-        
+
         key = "spot_lights[" + std::to_string(i) + "].linear";
         setUniform1f(key, spotLights[i]->linear);
-        
+
         key = "spot_lights[" + std::to_string(i) + "].quadratic";
         setUniform1f(key, spotLights[i]->quadratic);
-        
+
         key = "spot_lights[" + std::to_string(i) + "].on";
         setUniform1i(key, spotLights[i]->on);
     }
@@ -229,28 +248,28 @@ void Program::setUniformFlashLight(const std::vector<FlashLight*>& flashLights)
     for (int i = 0; i < flashLights.size(); i++) {
         key = "flash_lights[" + std::to_string(i) + "].position";
         setUniform3f(key, flashLights[i]->position);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].direction";
         setUniform3f(key, flashLights[i]->direction);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].color";
         setUniform3f(key, flashLights[i]->color * flashLights[i]->intensity);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].cutOff";
         setUniform1f(key, flashLights[i]->cutOff);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].outerCutOff";
         setUniform1f(key, flashLights[i]->outerCutOff);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].constant";
         setUniform1f(key, flashLights[i]->constant);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].linear";
         setUniform1f(key, flashLights[i]->linear);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].quadratic";
         setUniform1f(key, flashLights[i]->quadratic);
-        
+
         key = "flash_lights[" + std::to_string(i) + "].on";
         setUniform1i(key, flashLights[i]->on);
     }
@@ -274,7 +293,7 @@ GLuint Program::getLocation(const std::string& param)
     return location;
 }
 
-std::string Program::loadShader(const std::string &file_name)
+std::string Program::loadShader(const std::string& file_name)
 {
     std::string path = System::resourcePathWithFile(file_name);
     std::ifstream file(path);
@@ -287,7 +306,7 @@ std::string Program::loadShader(const std::string &file_name)
     std::stringstream buffer;
     buffer << file.rdbuf();
     file.close();
-    
+
     return buffer.str();
 }
 
@@ -297,7 +316,7 @@ unsigned int Program::compileShader(unsigned int type, const std::string& shader
     const char* scr = shader.c_str();
     glShaderSource(id, 1, &scr, nullptr);
     glCompileShader(id);
-    
+
     int nResult;
     glGetShaderiv(id, GL_COMPILE_STATUS, &nResult);
     if (nResult == GL_FALSE)

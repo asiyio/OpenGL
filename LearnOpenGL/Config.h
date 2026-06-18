@@ -1,4 +1,4 @@
-//
+ï»¿//
 //  config.h
 //  LearnOpenGL
 //
@@ -10,9 +10,11 @@
 
 #include <glm/glm.hpp>
 
-// ¶¨ÒåÕ¹Ê¾ÔÚimguiÉÏµÄÅäÖÃ
+// å®šä¹‰å±•ç¤ºåœ¨imguiä¸Šçš„é…ç½®
 bool renderSkyBox = true;
 bool renderCTPBR = true;
+bool renderSSAO = false;
 int frameCount = 0;
+float ssaoRadius = 0.5f;    // ssaoé‡‡æ ·åŠå¾„
 
 #endif /* config_h */
